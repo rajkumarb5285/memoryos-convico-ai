@@ -21,17 +21,6 @@ MEMORYOS is a production-grade conversational memory backend that persistently s
 
 ---
 
-## Scoring Breakdown
-
-| Category                   | Points | Implemented |
-|---------------------------|--------|-------------|
-| Neural memory extraction  | 20     | ✅ Full     |
-| Memory lifecycle          | 20     | ✅ Full     |
-| Hybrid RAG retrieval      | 25     | ✅ Full     |
-| Security and isolation    | 15     | ✅ Full     |
-| Backend and performance   | 10     | ✅ Full     |
-| Testing and reproducibility | 10   | ✅ Full     |
-| **Total**                 | **100**| ✅ **100** |
 
 ---
 
