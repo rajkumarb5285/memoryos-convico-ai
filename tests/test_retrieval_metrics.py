@@ -1,4 +1,4 @@
-from app.retrieval.metrics import compute_retrieval_metrics
+from app.retrieval import compute_retrieval_metrics
 
 
 def test_five_relevant_results():
@@ -104,3 +104,4 @@ def test_late_rank_relevant_result():
     assert m["r_at_5"] == 1.0
     assert m["rr"] == 0.2  # Rank 5 -> RR = 1/5 = 0.2
     assert m["ndcg_at_5"] < 1.0
+

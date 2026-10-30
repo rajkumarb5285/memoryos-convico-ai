@@ -21,10 +21,9 @@ from app.models.character import Character
 from app.models.conversation import Conversation
 from app.models.memory import Memory
 from app.models.user import User
-from app.retrieval.coordinator import retrieval_coordinator
+from app.retrieval import compute_retrieval_metrics, retrieval_coordinator
 from app.retrieval.dense import dense_lane
 from app.retrieval.lexical import lexical_lane
-from app.retrieval.metrics import compute_retrieval_metrics
 from app.retrieval.structured import structured_lane
 from app.schemas.retrieval import RetrievalRequest
 

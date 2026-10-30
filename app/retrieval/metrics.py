@@ -82,3 +82,4 @@ def compute_retrieval_metrics(
         "rr": round(rr, 4),
         "ndcg_at_5": round(ndcg_5, 4),
     }
+
