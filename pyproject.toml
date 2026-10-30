@@ -44,12 +44,6 @@ dev = [
     "bandit>=1.7.9",
 ]
 
-[tool.pytest.ini_options]
-minversion = "8.0"
-addopts = "-ra -q --asyncio-mode=auto"
-testpaths = ["tests"]
-pythonpath = ["."]
-
 [tool.ruff]
 target-version = "py311"
 line-length = 100

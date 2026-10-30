@@ -13,7 +13,10 @@ class StructuredRetrievalLane:
         domains = []
         temporal = None
 
-        if any(w in low for w in ["live", "city", "rehta", "moved", "stay", "ghar", "home", "residence", "reside", "address"]):
+        if any(
+            w in low
+            for w in ["live", "city", "rehta", "moved", "stay", "ghar", "home", "residence", "reside", "address"]
+        ):
             predicates.extend(["lives_in", "lived_in"])
             domains.append("geography")
 

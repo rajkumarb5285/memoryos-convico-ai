@@ -1,3 +1,5 @@
+import re
+
 import numpy as np
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -133,22 +135,47 @@ class RetrievalCoordinator:
 retrieval_coordinator = RetrievalCoordinator()
 
 
+def _is_text_match(a: str, b: str) -> bool:
+    """Check text match via equality or whole-word token containment."""
+    if not a or not b:
+        return False
+    if a == b:
+        return True
+    pattern_a = r"\b" + re.escape(a) + r"\b"
+    pattern_b = r"\b" + re.escape(b) + r"\b"
+    return bool(re.search(pattern_a, b, re.IGNORECASE) or re.search(pattern_b, a, re.IGNORECASE))
+
+
 def compute_retrieval_metrics(
     retrieved_objects: list[str],
     gold_expected_objects: list[str],
     k: int = 5,
 ) -> dict[str, float]:
+    """Computes standard Information Retrieval (IR) metrics with strict one-to-one matching:
+
+    - Precision@1 (P@1): Relevant unique items in top 1 / 1
+    - Precision@3 (P@3): Relevant unique items in top 3 / 3
+    - Precision@5 (P@5): Relevant unique items in top 5 / 5 (fixed-k denominator)
+    - Recall@5 (R@5): Relevant unique items in top 5 / total unique gold items
+    - R-Precision (Precision@|R|): Precision at rank R, where R = number of gold items
+    - Mean Reciprocal Rank (MRR): 1 / first_relevant_rank (1-indexed)
+    - Normalized Discounted Cumulative Gain at 5 (nDCG@5): log2 discounted gain vs ideal DCG
+
+    Guarantees:
+    - Zero/empty relevance sets return all zeros.
+    - One retrieved result cannot match multiple gold facts.
+    - Multiple retrieved duplicates cannot double-count relevance.
+    - Empty or whitespace strings never produce false positive matches.
     """
-    Computes standard Information Retrieval (IR) metrics with strict one-to-one matching:
-    - Precision@1 (P@1)
-    - Precision@3 (P@3)
-    - Precision@5 (P@5)
-    - Recall@5 (R@5)
-    - R-Precision (Precision@|R|)
-    - Mean Reciprocal Rank (MRR)
-    - Normalized Discounted Cumulative Gain at 5 (nDCG@5)
-    """
-    if not gold_expected_objects:
+    unique_gold: list[str] = []
+    seen_gold: set[str] = set()
+    for g in gold_expected_objects:
+        clean = (g or "").strip()
+        if clean and clean.lower() not in seen_gold:
+            seen_gold.add(clean.lower())
+            unique_gold.append(clean)
+
+    if not unique_gold:
         return {
             "p_at_1": 0.0,
             "p_at_3": 0.0,
@@ -167,10 +194,14 @@ def compute_retrieval_metrics(
     for rank_idx, ret_obj in enumerate(top_k_retrieved, start=1):
         matched = False
         ret_clean = (ret_obj or "").lower().strip()
-        for g_idx, gold_obj in enumerate(gold_expected_objects):
+        if not ret_clean:
+            rel_flags.append(0)
+            continue
+
+        for g_idx, gold_obj in enumerate(unique_gold):
             if g_idx not in matched_gold_indices and gold_obj:
                 g_clean = gold_obj.lower().strip()
-                if g_clean in ret_clean or ret_clean in g_clean:
+                if _is_text_match(ret_clean, g_clean):
                     matched_gold_indices.add(g_idx)
                     matched = True
                     if first_rank is None:
@@ -178,21 +209,20 @@ def compute_retrieval_metrics(
                     break
         rel_flags.append(1 if matched else 0)
 
-    while len(rel_flags) < k:
+    gold_count = len(unique_gold)
+    max_pad = max(k, 5, gold_count)
+    while len(rel_flags) < max_pad:
         rel_flags.append(0)
 
-    relevant_count = len(matched_gold_indices)
-    gold_count = len(gold_expected_objects)
-
-    p_at_1 = float(rel_flags[0]) if len(rel_flags) >= 1 else 0.0
-    p_at_3 = float(sum(rel_flags[:3]) / 3.0)
-    p_at_5 = float(relevant_count / float(k))
-    r_at_5 = float(relevant_count / float(gold_count)) if gold_count > 0 else 1.0
-    r_prec = float(sum(rel_flags[:gold_count]) / float(gold_count)) if gold_count > 0 else 1.0
+    p_at_1 = float(sum(rel_flags[:1])) / 1.0
+    p_at_3 = float(sum(rel_flags[:3])) / 3.0
+    p_at_5 = float(sum(rel_flags[:5])) / 5.0
+    r_at_5 = float(sum(rel_flags[:5])) / float(gold_count) if gold_count > 0 else 1.0
+    r_prec = float(sum(rel_flags[:gold_count])) / float(gold_count) if gold_count > 0 else 1.0
     rr = float(1.0 / first_rank) if first_rank else 0.0
 
-    dcg = sum(rel / np.log2(idx + 1) for idx, rel in enumerate(rel_flags[:k], start=1))
-    idcg = sum(1.0 / np.log2(idx + 1) for idx in range(1, min(k, gold_count) + 1))
+    dcg = sum(rel / np.log2(idx + 1) for idx, rel in enumerate(rel_flags[:5], start=1))
+    idcg = sum(1.0 / np.log2(idx + 1) for idx in range(1, min(5, gold_count) + 1))
     ndcg_5 = float(dcg / idcg) if idcg > 0 else 0.0
 
     return {

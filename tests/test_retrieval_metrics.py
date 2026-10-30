@@ -105,3 +105,56 @@ def test_late_rank_relevant_result():
     assert m["rr"] == 0.2  # Rank 5 -> RR = 1/5 = 0.2
     assert m["ndcg_at_5"] < 1.0
 
+
+def test_empty_retrieved_results():
+    retrieved = []
+    gold = ["pune"]
+    m = compute_retrieval_metrics(retrieved, gold, k=5)
+    assert m["p_at_1"] == 0.0
+    assert m["p_at_3"] == 0.0
+    assert m["p_at_5"] == 0.0
+    assert m["r_at_5"] == 0.0
+    assert m["r_prec"] == 0.0
+    assert m["rr"] == 0.0
+    assert m["ndcg_at_5"] == 0.0
+
+
+def test_empty_string_and_none_retrieved_no_match():
+    retrieved = ["", None, "   ", "pune"]
+    gold = ["pune"]
+    m = compute_retrieval_metrics(retrieved, gold, k=5)
+    assert m["p_at_1"] == 0.0
+    assert m["p_at_5"] == 0.2
+    assert m["r_at_5"] == 1.0
+    assert m["rr"] == 0.25  # Rank 4
+
+
+def test_duplicate_expected_facts_deduplicated():
+    retrieved = ["pune", "delhi", "mumbai", "chennai", "kolkata"]
+    gold = ["pune", "pune", "Pune"]
+    m = compute_retrieval_metrics(retrieved, gold, k=5)
+    assert m["p_at_1"] == 1.0
+    assert m["p_at_5"] == 0.2
+    assert m["r_at_5"] == 1.0
+    assert m["r_prec"] == 1.0
+
+
+def test_substring_false_positive_prevention():
+    # 'in' should NOT match 'indore', 'go' should NOT match 'google', 'a' should NOT match 'japan'
+    retrieved = ["in", "go", "a", "no", "pan"]
+    gold = ["indore", "google", "japan"]
+    m = compute_retrieval_metrics(retrieved, gold, k=5)
+    assert m["p_at_1"] == 0.0
+    assert m["p_at_5"] == 0.0
+    assert m["r_at_5"] == 0.0
+    assert m["rr"] == 0.0
+
+
+def test_one_retrieved_matches_at_most_one_gold():
+    # If a compound retrieved item contains multiple gold keywords, it consumes only one gold entry
+    retrieved = ["pune and indore", "delhi", "mumbai", "chennai", "kolkata"]
+    gold = ["pune", "indore"]
+    m = compute_retrieval_metrics(retrieved, gold, k=5)
+    assert m["p_at_1"] == 1.0
+    assert m["p_at_5"] == 0.2
+    assert m["r_at_5"] == 0.5  # Only 1 of 2 gold facts matched
