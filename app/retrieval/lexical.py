@@ -9,8 +9,8 @@ from app.models.memory import Memory
 class LexicalRetrievalLane:
     """Lane B: Lexical search using PostgreSQL full-text search and keyword matching."""
 
-    # Hinglish transliteration synonym map to assist lexical matching
-    HINGLISH_SYNONYMS = {
+    # Hinglish & English synonym map to assist lexical matching
+    SYNONYM_MAP = {
         "behen": ["sister", "bhen", "bahan"],
         "bhen": ["sister", "behen"],
         "bhai": ["brother"],
@@ -19,14 +19,29 @@ class LexicalRetrievalLane:
         "rehta": ["live", "lives", "lived"],
         "padhti": ["study", "studies"],
         "pasand": ["like", "likes", "preference"],
+        "home": ["live", "lives", "residence"],
+        "residence": ["live", "lives", "home"],
+        "job": ["work", "employed", "company"],
+        "company": ["work", "employed", "job"],
+        "career": ["work", "employed"],
+        "beverage": ["drink", "chai", "tea", "coffee"],
+        "diet": ["vegetarian", "food"],
+        "travel": ["visit", "trip", "japan"],
+    }
+
+    LEXICAL_STOPWORDS = {
+        "what", "where", "which", "when", "how", "who", "did", "do", "does",
+        "is", "are", "was", "were", "my", "i", "the", "a", "an", "in", "at",
+        "about", "for", "to", "of", "now", "then", "and", "or", "tell", "you",
     }
 
     def _expand_query_terms(self, query: str) -> list[str]:
         words = re.findall(r"\b[A-Za-z0-9]+\b", query.lower())
-        terms = set(words)
+        content_words = [w for w in words if w not in self.LEXICAL_STOPWORDS and len(w) > 2]
+        terms = set(content_words)
         for w in words:
-            if w in self.HINGLISH_SYNONYMS:
-                terms.update(self.HINGLISH_SYNONYMS[w])
+            if w in self.SYNONYM_MAP:
+                terms.update(self.SYNONYM_MAP[w])
         return [t for t in terms if len(t) > 2]
 
     async def retrieve(

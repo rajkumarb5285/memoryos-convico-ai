@@ -3,14 +3,16 @@ import csv
 import json
 import sys
 import time
-from datetime import UTC, datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
+
 import numpy as np
 
 # Ensure project root is in sys.path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from sqlalchemy import select, and_
+from sqlalchemy import and_, select
+
 from app.cache.redis_service import cache_service
 from app.db.session import AsyncSessionLocal
 from app.extraction.extractor import DeterministicMemoryExtractor
@@ -22,13 +24,14 @@ from app.models.user import User
 from app.retrieval.coordinator import retrieval_coordinator
 from app.retrieval.dense import dense_lane
 from app.retrieval.lexical import lexical_lane
+from app.retrieval.metrics import compute_retrieval_metrics
 from app.retrieval.structured import structured_lane
 from app.schemas.retrieval import RetrievalRequest
 
 
 async def run_evaluation_suite():
     dataset_path = Path("evaluation/dataset.json")
-    with open(dataset_path, "r", encoding="utf-8") as f:
+    with open(dataset_path, encoding="utf-8") as f:
         cases = json.load(f)
 
     extractor = DeterministicMemoryExtractor()
@@ -45,9 +48,13 @@ async def run_evaluation_suite():
     ret_hits = 0
     ret_insufficient_total = 0
     ret_insufficient_correct = 0
+    per_query_p1: list[float] = []
+    per_query_p3: list[float] = []
     per_query_p5: list[float] = []
     per_query_r5: list[float] = []
+    per_query_r_prec: list[float] = []
     per_query_mrr: list[float] = []
+    per_query_ndcg5: list[float] = []
 
     # Security counters
     sec_total = 0
@@ -166,46 +173,36 @@ async def run_evaluation_suite():
                 retrieval_latencies_ms.append(lat_ms)
 
                 exp_insufficient = tc["expected_insufficient"]
-                exp_obj = tc["expected_object"]
 
                 if exp_insufficient:
                     ret_insufficient_total += 1
                     if ret_res.insufficient_evidence:
                         ret_insufficient_correct += 1
+                        detail = "Insufficient evidence correctly identified"
                     else:
                         status = "FAIL"
                         detail = "Expected insufficient evidence flag, got false"
                 else:
-                    # Precision@5 and Recall@5 per query (macro-averaged)
-                    top5 = ret_res.evidence[:5]
-                    relevant_count = sum(
-                        1
-                        for ev in top5
-                        if exp_obj and exp_obj.lower() in ev.object.lower()
-                    )
-                    actual_returned = len(top5)
-                    expected_count = 1  # test case specifies 1 ground-truth relevant fact
+                    top5_objects = [ev.object for ev in ret_res.evidence[:5]]
+                    exp_objs = tc.get("expected_objects") or ([tc["expected_object"]] if tc.get("expected_object") else [])
 
-                    p_at_5 = (relevant_count / actual_returned) if actual_returned > 0 else 0.0
-                    r_at_5 = (relevant_count / expected_count) if expected_count > 0 else 1.0
+                    q_metrics = compute_retrieval_metrics(top5_objects, exp_objs, k=5)
 
-                    # MRR calculation
-                    first_rank = None
-                    for rank_idx, ev in enumerate(top5, start=1):
-                        if exp_obj and exp_obj.lower() in ev.object.lower():
-                            first_rank = rank_idx
-                            break
-                    rr = (1.0 / first_rank) if first_rank else 0.0
+                    per_query_p1.append(q_metrics["p_at_1"])
+                    per_query_p3.append(q_metrics["p_at_3"])
+                    per_query_p5.append(q_metrics["p_at_5"])
+                    per_query_r5.append(q_metrics["r_at_5"])
+                    per_query_r_prec.append(q_metrics["r_prec"])
+                    per_query_mrr.append(q_metrics["rr"])
+                    per_query_ndcg5.append(q_metrics["ndcg_at_5"])
 
-                    per_query_p5.append(p_at_5)
-                    per_query_r5.append(r_at_5)
-                    per_query_mrr.append(rr)
-
-                    if relevant_count > 0:
+                    if q_metrics["r_at_5"] > 0:
                         ret_hits += 1
+                        first_hit_rank = int(1.0 / q_metrics["rr"]) if q_metrics["rr"] > 0 else "N/A"
+                        detail = f"Hit at rank {first_hit_rank} (P@1: {q_metrics['p_at_1']}, P@5: {q_metrics['p_at_5']}, MRR: {q_metrics['rr']}, nDCG@5: {q_metrics['ndcg_at_5']})"
                     else:
                         status = "FAIL"
-                        detail = f"Expected '{exp_obj}' in top evidence, not found"
+                        detail = f"Expected '{exp_objs}' in top evidence, not found"
 
             elif tc_type == "security":
                 sec_total += 1
@@ -362,7 +359,7 @@ async def run_evaluation_suite():
                         domain="access_control",
                         polarity="positive",
                         temporal_status="current",
-                        valid_from=datetime.now(timezone.utc),
+                        valid_from=datetime.now(UTC),
                     )
                     db.add(mem_race)
                     await db.commit()
@@ -416,7 +413,7 @@ async def run_evaluation_suite():
         print("Executing Dedicated Lifecycle Evaluation Suite (10 cases)")
         print("=================================================================")
         lifecycle_dataset_path = Path("evaluation/lifecycle_dataset.json")
-        with open(lifecycle_dataset_path, "r", encoding="utf-8") as f:
+        with open(lifecycle_dataset_path, encoding="utf-8") as f:
             lifecycle_cases = json.load(f)
 
         lc_user = f"lc_user_{int(time.time())}"
@@ -535,10 +532,14 @@ async def run_evaluation_suite():
     rec = ext_tp / (ext_tp + ext_fn) if (ext_tp + ext_fn) > 0 else 1.0
     f1 = 2 * (prec * rec) / (prec + rec) if (prec + rec) > 0 else 0.0
 
-    # Macro-averaged Precision@5 and Recall@5 across retrieval queries
+    # Macro-averaged retrieval metrics across answerable queries
+    ret_p1 = float(np.mean(per_query_p1)) if per_query_p1 else 1.0
+    ret_p3 = float(np.mean(per_query_p3)) if per_query_p3 else 1.0
     ret_p5 = float(np.mean(per_query_p5)) if per_query_p5 else 1.0
     ret_r5 = float(np.mean(per_query_r5)) if per_query_r5 else 1.0
+    ret_r_prec = float(np.mean(per_query_r_prec)) if per_query_r_prec else 1.0
     ret_mrr = float(np.mean(per_query_mrr)) if per_query_mrr else 0.0
+    ret_ndcg5 = float(np.mean(per_query_ndcg5)) if per_query_ndcg5 else 0.0
 
     avg_lat = float(np.mean(retrieval_latencies_ms)) if retrieval_latencies_ms else 0.0
     p95_lat = float(np.percentile(retrieval_latencies_ms, 95)) if retrieval_latencies_ms else 0.0
@@ -556,8 +557,18 @@ async def run_evaluation_suite():
     passed_tests = sum(1 for r in results if r["status"] == "PASS")
     total_tests = len(results)
 
+    # Category Breakdown
+    category_stats: dict[str, dict[str, int]] = {}
+    for r in results:
+        cat = r["category"]
+        if cat not in category_stats:
+            category_stats[cat] = {"total": 0, "passed": 0}
+        category_stats[cat]["total"] += 1
+        if r["status"] == "PASS":
+            category_stats[cat]["passed"] += 1
+
     metrics = {
-        "evaluation_timestamp": datetime.now(timezone.utc).isoformat(),
+        "evaluation_timestamp": datetime.now(UTC).isoformat(),
         "total_test_cases": total_tests,
         "passed_test_cases": passed_tests,
         "pass_rate_percentage": round((passed_tests / total_tests) * 100, 2),
@@ -571,9 +582,14 @@ async def run_evaluation_suite():
         },
         "retrieval_metrics": {
             "queries_evaluated": ret_total,
+            "answerable_queries_evaluated": len(per_query_p5),
+            "precision_at_1": round(ret_p1, 4),
+            "precision_at_3": round(ret_p3, 4),
             "precision_at_5": round(ret_p5, 4),
             "recall_at_5": round(ret_r5, 4),
+            "r_precision": round(ret_r_prec, 4),
             "mean_reciprocal_rank_mrr": round(ret_mrr, 4),
+            "ndcg_at_5": round(ret_ndcg5, 4),
             "insufficient_evidence_queries_evaluated": ret_insufficient_total,
             "insufficient_evidence_accuracy": round(insufficient_acc, 4),
             "average_latency_ms": round(avg_lat, 2),
@@ -596,6 +612,7 @@ async def run_evaluation_suite():
             "tombstone_correctness": round(tombstone_acc, 4),
             "historical_facts_preserved_count": total_historical_preserved,
         },
+        "category_breakdown": category_stats,
     }
 
     # Save metrics.json
@@ -613,7 +630,7 @@ async def run_evaluation_suite():
     # Save test_logs.txt
     logs_path = Path("evaluation/test_logs.txt")
     with open(logs_path, "w", encoding="utf-8") as f:
-        f.write(f"MEMORYOS Evaluation Logs - {datetime.now(timezone.utc).isoformat()}\n")
+        f.write(f"MEMORYOS Evaluation Logs - {datetime.now(UTC).isoformat()}\n")
         f.write(f"Total Cases: {total_tests} | Passed: {passed_tests} | Pass Rate: {metrics['pass_rate_percentage']}%\n\n")
         f.write("-------------------------------------------------------------------------\n")
         for r in results:
@@ -627,9 +644,13 @@ async def run_evaluation_suite():
     print(f"Extraction Precision:           {metrics['extraction_metrics']['precision']}")
     print(f"Extraction Recall:              {metrics['extraction_metrics']['recall']}")
     print(f"Extraction F1 Score:            {metrics['extraction_metrics']['f1_score']}")
-    print(f"Retrieval Recall@5:             {metrics['retrieval_metrics']['recall_at_5']}")
+    print(f"Retrieval Precision@1:          {metrics['retrieval_metrics']['precision_at_1']}")
+    print(f"Retrieval Precision@3:          {metrics['retrieval_metrics']['precision_at_3']}")
     print(f"Retrieval Precision@5:          {metrics['retrieval_metrics']['precision_at_5']}")
+    print(f"Retrieval Recall@5:             {metrics['retrieval_metrics']['recall_at_5']}")
+    print(f"Retrieval R-Precision:          {metrics['retrieval_metrics']['r_precision']}")
     print(f"Retrieval MRR:                  {metrics['retrieval_metrics']['mean_reciprocal_rank_mrr']}")
+    print(f"Retrieval nDCG@5:               {metrics['retrieval_metrics']['ndcg_at_5']}")
     print(f"Insufficient Evidence Accuracy: {metrics['retrieval_metrics']['insufficient_evidence_accuracy']}")
     print(f"Average Retrieval Latency:      {metrics['retrieval_metrics']['average_latency_ms']} ms")
     print(f"P95 Retrieval Latency:          {metrics['retrieval_metrics']['p95_latency_ms']} ms")

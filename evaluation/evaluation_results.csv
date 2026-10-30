@@ -78,22 +78,22 @@ tc_076,temporal_transition,I plan to visit Switzerland.,PASS,
 tc_077,temporal_transition,I am now a vegetarian.,PASS,
 tc_078,temporal_transition,I am now a vegan.,PASS,
 tc_079,temporal_transition,Main pehle Indore mein rehta tha.,PASS,
-tc_080,retrieval_eval,Where do I live now?,PASS,
-tc_081,retrieval_eval,Where did I live before?,PASS,
-tc_082,retrieval_eval,Which city did I live in previously?,PASS,
-tc_083,retrieval_eval,Where is my current home?,PASS,
-tc_084,retrieval_eval,What company do I work for now?,PASS,
-tc_085,retrieval_eval,Where did I work before Microsoft?,PASS,
-tc_086,retrieval_eval,What beverage do I like?,PASS,
-tc_087,retrieval_eval,What do I think about coffee?,PASS,
-tc_088,retrieval_eval,Where does my sister study?,PASS,
-tc_089,retrieval_eval,Where do I plan to travel?,PASS,
-tc_090,retrieval_eval,What is my diet?,PASS,
-tc_091,retrieval_eval,Where does my behen study?,PASS,
-tc_092,retrieval_eval,What is my favorite spaceship brand?,PASS,
-tc_093,retrieval_eval,What is my secret crypto password?,PASS,
-tc_094,retrieval_eval,What car do I drive?,PASS,
-tc_095,retrieval_eval,What is my mother's maiden name?,PASS,
+tc_080,retrieval_eval,Where do I live now?,PASS,"Hit at rank 1 (P@1: 1.0, P@5: 0.2, MRR: 1.0, nDCG@5: 1.0)"
+tc_081,retrieval_eval,Where did I live before?,PASS,"Hit at rank 1 (P@1: 1.0, P@5: 0.2, MRR: 1.0, nDCG@5: 1.0)"
+tc_082,retrieval_eval,Which city did I live in previously?,PASS,"Hit at rank 1 (P@1: 1.0, P@5: 0.2, MRR: 1.0, nDCG@5: 1.0)"
+tc_083,retrieval_eval,Where is my current home?,PASS,"Hit at rank 1 (P@1: 1.0, P@5: 0.2, MRR: 1.0, nDCG@5: 1.0)"
+tc_084,retrieval_eval,What company do I work for now?,PASS,"Hit at rank 1 (P@1: 1.0, P@5: 0.2, MRR: 1.0, nDCG@5: 1.0)"
+tc_085,retrieval_eval,Where did I work before Microsoft?,PASS,"Hit at rank 1 (P@1: 1.0, P@5: 0.2, MRR: 1.0, nDCG@5: 1.0)"
+tc_086,retrieval_eval,What beverage do I like?,PASS,"Hit at rank 1 (P@1: 1.0, P@5: 0.2, MRR: 1.0, nDCG@5: 1.0)"
+tc_087,retrieval_eval,What do I think about coffee?,PASS,"Hit at rank 1 (P@1: 1.0, P@5: 0.2, MRR: 1.0, nDCG@5: 1.0)"
+tc_088,retrieval_eval,Where does my sister study?,PASS,"Hit at rank 1 (P@1: 1.0, P@5: 0.2, MRR: 1.0, nDCG@5: 1.0)"
+tc_089,retrieval_eval,Where do I plan to travel?,PASS,"Hit at rank 1 (P@1: 1.0, P@5: 0.2, MRR: 1.0, nDCG@5: 1.0)"
+tc_090,retrieval_eval,What is my diet?,PASS,"Hit at rank 1 (P@1: 1.0, P@5: 0.2, MRR: 1.0, nDCG@5: 1.0)"
+tc_091,retrieval_eval,Where does my behen study?,PASS,"Hit at rank 1 (P@1: 1.0, P@5: 0.2, MRR: 1.0, nDCG@5: 1.0)"
+tc_092,retrieval_eval,What is my favorite spaceship brand?,PASS,Insufficient evidence correctly identified
+tc_093,retrieval_eval,What is my secret crypto password?,PASS,Insufficient evidence correctly identified
+tc_094,retrieval_eval,What car do I drive?,PASS,Insufficient evidence correctly identified
+tc_095,retrieval_eval,What is my mother's maiden name?,PASS,Insufficient evidence correctly identified
 tc_096,security_isolation,Cross-user memory read attempt,PASS,Cross-user read rejected: 0 memories returned
 tc_097,security_isolation,Cross-user memory deletion attempt,PASS,Cross-user delete rejected: ownership guard enforced
 tc_098,security_isolation,Cross-character memory retrieval under same user,PASS,Cross-character isolation verified: 0 leakage

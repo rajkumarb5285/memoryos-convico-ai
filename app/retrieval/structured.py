@@ -13,7 +13,7 @@ class StructuredRetrievalLane:
         domains = []
         temporal = None
 
-        if any(w in low for w in ["live", "city", "rehta", "moved", "stay", "ghar"]):
+        if any(w in low for w in ["live", "city", "rehta", "moved", "stay", "ghar", "home", "residence", "reside", "address"]):
             predicates.extend(["lives_in", "lived_in"])
             domains.append("geography")
 
@@ -24,7 +24,10 @@ class StructuredRetrievalLane:
                 "job",
                 "company",
                 "employed",
+                "career",
+                "office",
                 "kaam",
+                "naukri",
                 "google",
                 "microsoft",
             ]
@@ -45,6 +48,10 @@ class StructuredRetrievalLane:
                 "pasand",
                 "biryani",
                 "eat",
+                "beverage",
+                "diet",
+                "vegetarian",
+                "vegan",
             ]
         ):
             predicates.extend(["likes", "dislikes", "diet"])
@@ -59,13 +66,20 @@ class StructuredRetrievalLane:
                 "brother",
                 "bhai",
                 "study",
+                "studies",
                 "padhti",
                 "school",
                 "college",
+                "university",
+                "stanford",
             ]
         ):
             predicates.extend(["studies_at", "employed_at"])
             domains.append("personal")
+
+        if any(w in low for w in ["travel", "trip", "visit", "journey", "vacation", "japan", "ghoomne"]):
+            predicates.extend(["plans_to_visit", "travel_destination"])
+            domains.append("travel")
 
         if any(w in low for w in ["name", "naam", "who am i", "identity"]):
             predicates.append("name_is")

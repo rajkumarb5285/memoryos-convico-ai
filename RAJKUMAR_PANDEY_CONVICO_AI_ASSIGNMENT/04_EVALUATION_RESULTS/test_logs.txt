@@ -1,4 +1,4 @@
-MEMORYOS Evaluation Logs - 2026-10-30T17:36:52.868702+00:00
+MEMORYOS Evaluation Logs - 2026-10-30T18:10:55.021410+00:00
 Total Cases: 105 | Passed: 105 | Pass Rate: 100.0%
 
 -------------------------------------------------------------------------
@@ -81,22 +81,22 @@ Total Cases: 105 | Passed: 105 | Pass Rate: 100.0%
 [PASS] tc_077 | temporal_transition | I am now a vegetarian. | 
 [PASS] tc_078 | temporal_transition | I am now a vegan. | 
 [PASS] tc_079 | temporal_transition | Main pehle Indore mein rehta tha. | 
-[PASS] tc_080 | retrieval_eval | Where do I live now? | 
-[PASS] tc_081 | retrieval_eval | Where did I live before? | 
-[PASS] tc_082 | retrieval_eval | Which city did I live in previously? | 
-[PASS] tc_083 | retrieval_eval | Where is my current home? | 
-[PASS] tc_084 | retrieval_eval | What company do I work for now? | 
-[PASS] tc_085 | retrieval_eval | Where did I work before Microsoft? | 
-[PASS] tc_086 | retrieval_eval | What beverage do I like? | 
-[PASS] tc_087 | retrieval_eval | What do I think about coffee? | 
-[PASS] tc_088 | retrieval_eval | Where does my sister study? | 
-[PASS] tc_089 | retrieval_eval | Where do I plan to travel? | 
-[PASS] tc_090 | retrieval_eval | What is my diet? | 
-[PASS] tc_091 | retrieval_eval | Where does my behen study? | 
-[PASS] tc_092 | retrieval_eval | What is my favorite spaceship brand? | 
-[PASS] tc_093 | retrieval_eval | What is my secret crypto password? | 
-[PASS] tc_094 | retrieval_eval | What car do I drive? | 
-[PASS] tc_095 | retrieval_eval | What is my mother's maiden name? | 
+[PASS] tc_080 | retrieval_eval | Where do I live now? | Hit at rank 1 (P@1: 1.0, P@5: 0.2, MRR: 1.0, nDCG@5: 1.0)
+[PASS] tc_081 | retrieval_eval | Where did I live before? | Hit at rank 1 (P@1: 1.0, P@5: 0.2, MRR: 1.0, nDCG@5: 1.0)
+[PASS] tc_082 | retrieval_eval | Which city did I live in previously? | Hit at rank 1 (P@1: 1.0, P@5: 0.2, MRR: 1.0, nDCG@5: 1.0)
+[PASS] tc_083 | retrieval_eval | Where is my current home? | Hit at rank 1 (P@1: 1.0, P@5: 0.2, MRR: 1.0, nDCG@5: 1.0)
+[PASS] tc_084 | retrieval_eval | What company do I work for now? | Hit at rank 1 (P@1: 1.0, P@5: 0.2, MRR: 1.0, nDCG@5: 1.0)
+[PASS] tc_085 | retrieval_eval | Where did I work before Microsoft? | Hit at rank 1 (P@1: 1.0, P@5: 0.2, MRR: 1.0, nDCG@5: 1.0)
+[PASS] tc_086 | retrieval_eval | What beverage do I like? | Hit at rank 1 (P@1: 1.0, P@5: 0.2, MRR: 1.0, nDCG@5: 1.0)
+[PASS] tc_087 | retrieval_eval | What do I think about coffee? | Hit at rank 1 (P@1: 1.0, P@5: 0.2, MRR: 1.0, nDCG@5: 1.0)
+[PASS] tc_088 | retrieval_eval | Where does my sister study? | Hit at rank 1 (P@1: 1.0, P@5: 0.2, MRR: 1.0, nDCG@5: 1.0)
+[PASS] tc_089 | retrieval_eval | Where do I plan to travel? | Hit at rank 1 (P@1: 1.0, P@5: 0.2, MRR: 1.0, nDCG@5: 1.0)
+[PASS] tc_090 | retrieval_eval | What is my diet? | Hit at rank 1 (P@1: 1.0, P@5: 0.2, MRR: 1.0, nDCG@5: 1.0)
+[PASS] tc_091 | retrieval_eval | Where does my behen study? | Hit at rank 1 (P@1: 1.0, P@5: 0.2, MRR: 1.0, nDCG@5: 1.0)
+[PASS] tc_092 | retrieval_eval | What is my favorite spaceship brand? | Insufficient evidence correctly identified
+[PASS] tc_093 | retrieval_eval | What is my secret crypto password? | Insufficient evidence correctly identified
+[PASS] tc_094 | retrieval_eval | What car do I drive? | Insufficient evidence correctly identified
+[PASS] tc_095 | retrieval_eval | What is my mother's maiden name? | Insufficient evidence correctly identified
 [PASS] tc_096 | security_isolation | Cross-user memory read attempt | Cross-user read rejected: 0 memories returned
 [PASS] tc_097 | security_isolation | Cross-user memory deletion attempt | Cross-user delete rejected: ownership guard enforced
 [PASS] tc_098 | security_isolation | Cross-character memory retrieval under same user | Cross-character isolation verified: 0 leakage

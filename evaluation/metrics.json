@@ -1,5 +1,5 @@
 {
-  "evaluation_timestamp": "2026-10-30T17:36:52.865486+00:00",
+  "evaluation_timestamp": "2026-10-30T18:10:55.018393+00:00",
   "total_test_cases": 105,
   "passed_test_cases": 105,
   "pass_rate_percentage": 100.0,
@@ -13,13 +13,18 @@
   },
   "retrieval_metrics": {
     "queries_evaluated": 16,
+    "answerable_queries_evaluated": 12,
+    "precision_at_1": 1.0,
+    "precision_at_3": 0.3333,
     "precision_at_5": 0.2,
     "recall_at_5": 1.0,
-    "mean_reciprocal_rank_mrr": 0.9583,
+    "r_precision": 1.0,
+    "mean_reciprocal_rank_mrr": 1.0,
+    "ndcg_at_5": 1.0,
     "insufficient_evidence_queries_evaluated": 4,
     "insufficient_evidence_accuracy": 1.0,
-    "average_latency_ms": 45.5,
-    "p95_latency_ms": 99.13
+    "average_latency_ms": 38.45,
+    "p95_latency_ms": 87.72
   },
   "security_metrics": {
     "isolation_tests_evaluated": 10,
@@ -36,6 +41,40 @@
     "duplicate_handling_correctness": 1.0,
     "temporal_validity_correctness": 1.0,
     "tombstone_correctness": 1.0,
-    "historical_facts_preserved_count": 128
+    "historical_facts_preserved_count": 169
+  },
+  "category_breakdown": {
+    "english_fact": {
+      "total": 15,
+      "passed": 15
+    },
+    "hinglish_fact": {
+      "total": 15,
+      "passed": 15
+    },
+    "negation": {
+      "total": 12,
+      "passed": 12
+    },
+    "multi_fact": {
+      "total": 10,
+      "passed": 10
+    },
+    "question_or_noise_filter": {
+      "total": 15,
+      "passed": 15
+    },
+    "temporal_transition": {
+      "total": 12,
+      "passed": 12
+    },
+    "retrieval_eval": {
+      "total": 16,
+      "passed": 16
+    },
+    "security_isolation": {
+      "total": 10,
+      "passed": 10
+    }
   }
 }
