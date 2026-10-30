@@ -86,8 +86,19 @@ export default function App() {
 
   // Initialize or fetch auth & character on mount
   useEffect(() => {
-    bootstrapSession();
     checkHealth();
+    const savedToken = localStorage.getItem('memoryos_token');
+    const savedUid = localStorage.getItem('memoryos_uid');
+    const savedCid = localStorage.getItem('memoryos_cid');
+
+    if (savedToken && savedUid && savedCid) {
+      setToken(savedToken);
+      setUserId(savedUid);
+      setCharacterId(savedCid);
+      fetchMemories(savedUid, savedCid, savedToken);
+    } else {
+      bootstrapSession();
+    }
   }, []);
 
   const checkHealth = async () => {
@@ -95,37 +106,51 @@ export default function App() {
       const res = await fetch('/api/v1/health');
       if (res.ok) {
         const data = await res.json();
+        const dbOk = data.checks?.database === 'healthy' || data.checks?.database === 'connected';
+        const redisOk = data.checks?.cache === 'healthy' || data.checks?.cache === 'connected';
         setHealthStatus({
-          postgres: data.postgres === 'healthy' || data.postgres === 'connected',
-          redis: data.redis === 'healthy' || data.redis === 'connected',
+          postgres: Boolean(dbOk),
+          redis: Boolean(redisOk),
         });
       }
     } catch {
-      setHealthStatus({ postgres: true, redis: true });
+      setHealthStatus({ postgres: false, redis: false });
     }
   };
 
   const bootstrapSession = async () => {
     try {
-      const username = `apple_user_${Math.floor(Math.random() * 10000)}`;
+      const username = `apple_user_${Math.floor(Math.random() * 100000)}`;
+      const password = 'Password123!';
+      const email = `${username}@memoryos.apple.ai`;
+
+      // 1. Register User
       const regRes = await fetch('/api/v1/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          username,
-          email: `${username}@memoryos.apple.ai`,
-          password: 'Password123!',
-        }),
+        body: JSON.stringify({ username, email, password }),
       });
 
-      if (!regRes.ok) return;
-      const regData = await regRes.json();
-      const userToken = regData.access_token;
-      const uid = regData.user.id;
+      if (!regRes.ok) return null;
+
+      // 2. Obtain JWT Access Token
+      const tokenRes = await fetch('/api/v1/auth/token', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (!tokenRes.ok) return null;
+      const tokenData = await tokenRes.json();
+      const userToken = tokenData.access_token;
+      const uid = tokenData.user_id;
+
       setToken(userToken);
       setUserId(uid);
+      localStorage.setItem('memoryos_token', userToken);
+      localStorage.setItem('memoryos_uid', uid);
 
-      // Create a default Character scope
+      // 3. Create Default Character Scope
       const charRes = await fetch('/api/v1/character', {
         method: 'POST',
         headers: {
@@ -141,11 +166,14 @@ export default function App() {
       if (charRes.ok) {
         const charData = await charRes.json();
         setCharacterId(charData.id);
+        localStorage.setItem('memoryos_cid', charData.id);
         fetchMemories(uid, charData.id, userToken);
+        return { token: userToken, userId: uid, characterId: charData.id };
       }
     } catch (err) {
       console.error('Session bootstrap error:', err);
     }
+    return null;
   };
 
   const fetchMemories = async (uid: string, cid: string, authToken: string) => {
@@ -168,7 +196,22 @@ export default function App() {
 
   const handleSendMessage = async (textToSend?: string) => {
     const text = textToSend || chatInput;
-    if (!text.trim() || !token || !characterId) return;
+    if (!text.trim()) return;
+
+    let activeToken = token;
+    let activeCharId = characterId;
+    let activeUid = userId;
+
+    if (!activeToken || !activeCharId) {
+      const session = await bootstrapSession();
+      if (!session) {
+        alert('Initializing session with MEMORYOS backend... Please try again in 2 seconds.');
+        return;
+      }
+      activeToken = session.token;
+      activeCharId = session.characterId;
+      activeUid = session.userId;
+    }
 
     const newMsg: ChatMessage = {
       id: `msg-${Date.now()}`,
@@ -186,10 +229,10 @@ export default function App() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${activeToken}`,
         },
         body: JSON.stringify({
-          character_id: characterId,
+          character_id: activeCharId,
           conversation_id: conversationId || undefined,
           messages: [{ role: 'user', content: text }],
         }),
@@ -219,28 +262,60 @@ export default function App() {
         ]);
 
         // Refresh memories
-        fetchMemories(userId, characterId, token);
+        fetchMemories(activeUid, activeCharId, activeToken);
+      } else {
+        const errJson = await res.json().catch(() => ({}));
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `err-${Date.now()}`,
+            role: 'assistant',
+            content: `Error from server: ${errJson.message || res.statusText || 'Failed to process message'}`,
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          },
+        ]);
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error('Ingest error:', err);
+      const errMsg = err instanceof Error ? err.message : 'Unable to connect to backend';
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `err-${Date.now()}`,
+          role: 'assistant',
+          content: `Network connection error: ${errMsg}`,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        },
+      ]);
     } finally {
       setLoadingIngest(false);
     }
   };
 
   const handleExecuteRetrieval = async () => {
-    if (!retrievalQuery.trim() || !token || !characterId) return;
+    if (!retrievalQuery.trim()) return;
+
+    let activeToken = token;
+    let activeCharId = characterId;
+
+    if (!activeToken || !activeCharId) {
+      const session = await bootstrapSession();
+      if (!session) return;
+      activeToken = session.token;
+      activeCharId = session.characterId;
+    }
+
     setLoadingRetrieval(true);
     try {
       const res = await fetch('/api/v1/memory/retrieve', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${activeToken}`,
         },
         body: JSON.stringify({
           query: retrievalQuery,
-          character_id: characterId,
+          character_id: activeCharId,
           limit: 5,
         }),
       });
