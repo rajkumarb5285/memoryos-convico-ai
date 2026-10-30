@@ -42,3 +42,4 @@ zip:  ## Package submission folder
 clean:  ## Remove __pycache__, .pytest_cache, .coverage
 	find . -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
 	rm -rf .pytest_cache .coverage htmlcov
+
