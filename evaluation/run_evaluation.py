@@ -1,10 +1,14 @@
 import asyncio
 import csv
 import json
+import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
 import numpy as np
+
+# Ensure project root is in sys.path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.cache.redis_service import cache_service
 from app.db.session import AsyncSessionLocal

@@ -132,15 +132,16 @@ alembic upgrade head
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 
-API available at: http://localhost:8000  
-Interactive docs: http://localhost:8000/docs
+API available at: http://localhost:8000 (or http://localhost:8010 if host port 8000 is occupied)  
+Interactive docs: http://localhost:8000/docs (or http://localhost:8010/docs)  
+Glassmorphic Web UI: http://localhost:8000/app (or http://localhost:8010/app)
 
 ---
 
 ## Running Tests
 
 ```bash
-# All 31 tests
+# All 37 tests (Unit, Integration, Security IDOR, Resilience)
 pytest tests/ -v
 
 # With coverage report
@@ -174,8 +175,8 @@ PYTHONPATH=. python evaluation/run_benchmark.py
 | Extraction Precision | **1.0** |
 | Extraction Recall | **1.0** |
 | Extraction F1 | **1.0** |
-| Retrieval P@5 | **1.0** |
 | Retrieval R@5 | **1.0** |
+| Retrieval P@5 | **0.20** |
 | Avg retrieval latency | 68 ms |
 | P95 retrieval latency | 150 ms |
 | Cross-user leakage rate | **0.0** |

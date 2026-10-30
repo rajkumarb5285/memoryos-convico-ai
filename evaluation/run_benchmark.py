@@ -1,7 +1,12 @@
 import asyncio
+import sys
 import time
 from datetime import datetime, timezone
+from pathlib import Path
 import numpy as np
+
+# Ensure project root is in sys.path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.db.session import AsyncSessionLocal
 from app.extraction.extractor import DeterministicMemoryExtractor
