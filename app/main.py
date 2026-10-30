@@ -152,4 +152,7 @@ async def root():
 # Mount Apple-styled Glassmorphism React frontend if built
 frontend_dist = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend", "dist"))
 if os.path.exists(frontend_dist):
+    assets_dir = os.path.join(frontend_dist, "assets")
+    if os.path.exists(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
     app.mount("/app", StaticFiles(directory=frontend_dist, html=True), name="frontend")
