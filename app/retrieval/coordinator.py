@@ -115,6 +115,8 @@ class RetrievalCoordinator:
         if evidence and not insufficient:
             top_ev = evidence[0]
             answer_hint = f"{top_ev.subject} {top_ev.predicate} {top_ev.object} ({top_ev.temporal_status})"
+        elif insufficient:
+            answer_hint = "Insufficient evidence: no recorded memories match this query reliably."
 
         return RetrievalResponse(
             query=req.query,

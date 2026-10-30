@@ -12,6 +12,9 @@ import {
   RefreshCw,
   Clock,
   Key,
+  AlertTriangle,
+  CheckCircle,
+  Info,
 } from 'lucide-react';
 
 interface ExtractedMemory {
@@ -83,6 +86,8 @@ export default function App() {
   const [retrievalQuery, setRetrievalQuery] = useState<string>('Where do I live currently?');
   const [retrievalEvidence, setRetrievalEvidence] = useState<RetrievalEvidence[]>([]);
   const [retrievalConfidence, setRetrievalConfidence] = useState<number | null>(null);
+  const [retrievalInsufficient, setRetrievalInsufficient] = useState<boolean>(false);
+  const [answerHint, setAnswerHint] = useState<string | null>(null);
   const [loadingRetrieval, setLoadingRetrieval] = useState<boolean>(false);
   
   // Health
@@ -400,6 +405,8 @@ export default function App() {
         const data = await res.json();
         setRetrievalEvidence(data.evidence || []);
         setRetrievalConfidence(data.confidence_score);
+        setRetrievalInsufficient(Boolean(data.insufficient_evidence));
+        setAnswerHint(data.answer_hint || null);
       }
     } catch (err) {
       console.error('Retrieval error:', err);
@@ -732,10 +739,58 @@ export default function App() {
               {/* RRF Confidence Meter */}
               {retrievalConfidence !== null && (
                 <div className="glass-panel p-3 rounded-2xl flex items-center justify-between text-xs">
-                  <span className="text-slate-300">RRF Reranker Confidence:</span>
-                  <span className="font-bold text-emerald-400 text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-300">RRF Confidence:</span>
+                    <span
+                      className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
+                        retrievalConfidence >= 0.5
+                          ? 'bg-emerald-500/20 text-emerald-300 border-emerald-400/30'
+                          : retrievalConfidence >= 0.35
+                          ? 'bg-amber-500/20 text-amber-300 border-amber-400/30'
+                          : 'bg-rose-500/20 text-rose-300 border-rose-400/30'
+                      }`}
+                    >
+                      {retrievalConfidence >= 0.5 ? 'High Confidence' : retrievalConfidence >= 0.35 ? 'Moderate' : 'Below Threshold'}
+                    </span>
+                  </div>
+                  <span
+                    className={`font-bold text-sm ${
+                      retrievalConfidence >= 0.5
+                        ? 'text-emerald-400'
+                        : retrievalConfidence >= 0.35
+                        ? 'text-amber-400'
+                        : 'text-rose-400'
+                    }`}
+                  >
                     {(retrievalConfidence * 100).toFixed(1)}%
                   </span>
+                </div>
+              )}
+
+              {/* Status Banner: Answer Synthesis or Safe Abstention */}
+              {retrievalConfidence !== null && retrievalInsufficient && (
+                <div className="glass-panel p-3.5 rounded-2xl border-rose-500/30 bg-rose-500/10 space-y-1.5 shadow-lg">
+                  <div className="flex items-center gap-1.5 text-rose-400 font-semibold text-xs">
+                    <AlertTriangle className="w-4 h-4 text-rose-400" />
+                    <span>Safe Abstention (Insufficient Evidence)</span>
+                  </div>
+                  <p className="text-xs text-slate-300 leading-relaxed">
+                    {answerHint || 'No relevant memories found in your profile to answer this query. The engine safely abstains from hallucinating an answer.'}
+                  </p>
+                  <div className="text-[10px] text-slate-400 flex items-center gap-1 pt-1 border-t border-white/5">
+                    <Info className="w-3 h-3 text-slate-400" />
+                    <span>Confidence {((retrievalConfidence || 0) * 100).toFixed(1)}% is below the 35.0% certainty threshold.</span>
+                  </div>
+                </div>
+              )}
+
+              {retrievalConfidence !== null && !retrievalInsufficient && answerHint && (
+                <div className="glass-panel p-3.5 rounded-2xl border-emerald-500/30 bg-emerald-500/10 space-y-1 shadow-lg">
+                  <div className="flex items-center gap-1.5 text-emerald-400 font-semibold text-xs">
+                    <CheckCircle className="w-3.5 h-3.5" />
+                    <span>Verified Answer Synthesis:</span>
+                  </div>
+                  <p className="text-xs font-medium text-white">{answerHint}</p>
                 </div>
               )}
 
@@ -748,29 +803,50 @@ export default function App() {
                     Run a query to inspect matched evidence and lane contributions.
                   </div>
                 ) : (
-                  retrievalEvidence.map((ev, idx) => (
-                    <div key={idx} className="glass-panel p-3.5 rounded-2xl border-white/10 space-y-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-white">{ev.fact}</span>
-                        <span className="text-[10px] text-blue-400 font-bold">
-                          #{(ev.relevance_score).toFixed(2)}
-                        </span>
+                  <>
+                    {retrievalInsufficient && (
+                      <div className="text-[10px] uppercase font-bold tracking-wider text-slate-400 px-1 pt-1">
+                        Suppressed Candidates (Below 35% Threshold):
                       </div>
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        {ev.retrieval_lanes.map((lane) => (
+                    )}
+                    {retrievalEvidence.map((ev, idx) => (
+                      <div
+                        key={idx}
+                        className={`glass-panel p-3.5 rounded-2xl border-white/10 space-y-2 transition-all ${
+                          retrievalInsufficient ? 'opacity-70 border-rose-500/20' : 'hover:border-white/20'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-semibold text-white">{ev.fact}</span>
                           <span
-                            key={lane}
-                            className="text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-300 border border-blue-400/20"
+                            className={`text-[10px] font-bold ${
+                              retrievalInsufficient ? 'text-rose-400' : 'text-blue-400'
+                            }`}
                           >
-                            {lane}
+                            #{(ev.relevance_score).toFixed(2)}
                           </span>
-                        ))}
-                        <span className="text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-slate-500/10 text-slate-300">
-                          {ev.temporal_status}
-                        </span>
+                        </div>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          {ev.retrieval_lanes.map((lane) => (
+                            <span
+                              key={lane}
+                              className="text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-300 border border-blue-400/20"
+                            >
+                              {lane}
+                            </span>
+                          ))}
+                          <span className="text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-slate-500/10 text-slate-300">
+                            {ev.temporal_status}
+                          </span>
+                          {retrievalInsufficient && (
+                            <span className="text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-400/30">
+                              Suppressed
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    ))}
+                  </>
                 )}
               </div>
             </div>

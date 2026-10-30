@@ -1,5 +1,5 @@
 {
-  "evaluation_timestamp": "2026-10-30T18:14:55.619848+00:00",
+  "evaluation_timestamp": "2026-10-30T18:27:00.111350+00:00",
   "total_test_cases": 105,
   "passed_test_cases": 105,
   "pass_rate_percentage": 100.0,
@@ -23,8 +23,8 @@
     "ndcg_at_5": 1.0,
     "insufficient_evidence_queries_evaluated": 4,
     "insufficient_evidence_accuracy": 1.0,
-    "average_latency_ms": 24.93,
-    "p95_latency_ms": 44.18
+    "average_latency_ms": 121.82,
+    "p95_latency_ms": 174.51
   },
   "security_metrics": {
     "isolation_tests_evaluated": 10,
@@ -41,7 +41,7 @@
     "duplicate_handling_correctness": 1.0,
     "temporal_validity_correctness": 1.0,
     "tombstone_correctness": 1.0,
-    "historical_facts_preserved_count": 178
+    "historical_facts_preserved_count": 197
   },
   "category_breakdown": {
     "english_fact": {
