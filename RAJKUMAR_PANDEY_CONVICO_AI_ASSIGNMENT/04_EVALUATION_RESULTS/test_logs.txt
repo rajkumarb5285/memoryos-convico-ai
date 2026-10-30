@@ -1,4 +1,4 @@
-MEMORYOS Evaluation Logs - 2026-10-30T17:16:49.935884+00:00
+MEMORYOS Evaluation Logs - 2026-10-30T17:36:52.868702+00:00
 Total Cases: 105 | Passed: 105 | Pass Rate: 100.0%
 
 -------------------------------------------------------------------------
@@ -106,4 +106,4 @@ Total Cases: 105 | Passed: 105 | Pass Rate: 100.0%
 [PASS] tc_102 | security_isolation | Lexical lane cross-owner leak attempt | Lexical lane enforces owner_user_id at query level
 [PASS] tc_103 | security_isolation | Structured lane missing character filter | Structured lane enforces character_id strictly
 [PASS] tc_104 | security_isolation | Cross-scope foreign conversation ingestion | Foreign conversation rejected: ownership mismatch detected
-[PASS] tc_105 | security_isolation | Concurrent soft-delete race condition | Concurrent deletion safety enforced via row-level locks
+[PASS] tc_105 | security_isolation | Concurrent soft-delete race condition | Concurrent deletion verified: row-level lock enforced atomicity (1 success, 1 tombstone rejection)

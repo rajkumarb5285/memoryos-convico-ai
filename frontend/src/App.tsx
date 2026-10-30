@@ -50,6 +50,13 @@ interface ChatMessage {
   factsExtracted?: string[];
 }
 
+const getApiBase = () => {
+  if (typeof window === 'undefined') return 'http://localhost:8010';
+  if (window.location.port === '8010') return '';
+  return 'http://localhost:8010';
+};
+const API_BASE = getApiBase();
+
 export default function App() {
   // State
   const [activeTab, setActiveTab] = useState<'memories' | 'retrieval'>('memories');
@@ -103,7 +110,7 @@ export default function App() {
 
   const checkHealth = async () => {
     try {
-      const res = await fetch('/api/v1/health');
+      const res = await fetch(`${API_BASE}/api/v1/health`);
       if (res.ok) {
         const data = await res.json();
         const dbOk = data.checks?.database === 'healthy' || data.checks?.database === 'connected';
@@ -112,35 +119,55 @@ export default function App() {
           postgres: Boolean(dbOk),
           redis: Boolean(redisOk),
         });
+      } else {
+        setHealthStatus({ postgres: false, redis: false });
       }
     } catch {
       setHealthStatus({ postgres: false, redis: false });
     }
   };
 
+  const handleResetSession = async () => {
+    localStorage.removeItem('memoryos_token');
+    localStorage.removeItem('memoryos_uid');
+    localStorage.removeItem('memoryos_cid');
+    setToken('');
+    setUserId('');
+    setCharacterId('');
+    setConversationId('');
+    setMemories([]);
+    await bootstrapSession();
+  };
+
   const bootstrapSession = async () => {
     try {
-      const username = `apple_user_${Math.floor(Math.random() * 100000)}`;
+      const username = `apple_user_${Math.floor(Date.now() % 1000000)}_${Math.floor(Math.random() * 1000)}`;
       const password = 'Password123!';
       const email = `${username}@memoryos.apple.ai`;
 
       // 1. Register User
-      const regRes = await fetch('/api/v1/auth/register', {
+      const regRes = await fetch(`${API_BASE}/api/v1/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, email, password }),
       });
 
-      if (!regRes.ok) return null;
+      if (!regRes.ok && regRes.status !== 409) {
+        console.error('Registration failed:', await regRes.text());
+        return null;
+      }
 
       // 2. Obtain JWT Access Token
-      const tokenRes = await fetch('/api/v1/auth/token', {
+      const tokenRes = await fetch(`${API_BASE}/api/v1/auth/token`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
       });
 
-      if (!tokenRes.ok) return null;
+      if (!tokenRes.ok) {
+        console.error('Token fetch failed:', await tokenRes.text());
+        return null;
+      }
       const tokenData = await tokenRes.json();
       const userToken = tokenData.access_token;
       const uid = tokenData.user_id;
@@ -151,7 +178,7 @@ export default function App() {
       localStorage.setItem('memoryos_uid', uid);
 
       // 3. Create Default Character Scope
-      const charRes = await fetch('/api/v1/character', {
+      const charRes = await fetch(`${API_BASE}/api/v1/character`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -180,12 +207,18 @@ export default function App() {
     if (!uid || !authToken) return;
     setLoadingMemories(true);
     try {
-      const res = await fetch(`/api/v1/memory/${uid}?character_id=${cid}&limit=50`, {
+      const res = await fetch(`${API_BASE}/api/v1/memory/${uid}?character_id=${cid}&limit=50`, {
         headers: { Authorization: `Bearer ${authToken}` },
       });
       if (res.ok) {
         const data = await res.json();
         setMemories(data.memories || []);
+      } else if (res.status === 401 || res.status === 403) {
+        // Expired or invalid token, refresh session
+        localStorage.removeItem('memoryos_token');
+        localStorage.removeItem('memoryos_uid');
+        localStorage.removeItem('memoryos_cid');
+        await bootstrapSession();
       }
     } catch (e) {
       console.error(e);
@@ -205,7 +238,7 @@ export default function App() {
     if (!activeToken || !activeCharId) {
       const session = await bootstrapSession();
       if (!session) {
-        alert('Initializing session with MEMORYOS backend... Please try again in 2 seconds.');
+        alert('Connecting to MEMORYOS backend on http://localhost:8010... Please ensure backend is running or click Reset Session.');
         return;
       }
       activeToken = session.token;
@@ -225,7 +258,7 @@ export default function App() {
     setLoadingIngest(true);
 
     try {
-      const res = await fetch('/api/v1/memory/ingest', {
+      const res = await fetch(`${API_BASE}/api/v1/memory/ingest`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -263,6 +296,49 @@ export default function App() {
 
         // Refresh memories
         fetchMemories(activeUid, activeCharId, activeToken);
+      } else if (res.status === 401 || res.status === 403) {
+        // Token expired; reset and bootstrap
+        localStorage.removeItem('memoryos_token');
+        localStorage.removeItem('memoryos_uid');
+        localStorage.removeItem('memoryos_cid');
+        const session = await bootstrapSession();
+        if (session) {
+          const retryRes = await fetch(`${API_BASE}/api/v1/memory/ingest`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${session.token}`,
+            },
+            body: JSON.stringify({
+              character_id: session.characterId,
+              messages: [{ role: 'user', content: text }],
+            }),
+          });
+          if (retryRes.ok) {
+            const data = await retryRes.json();
+            const factCount = data.extracted_facts_count || 0;
+            setMessages((prev) => [
+              ...prev,
+              {
+                id: `reply-${Date.now()}`,
+                role: 'assistant',
+                content: `Processed message with fresh session (${factCount} memories extracted).`,
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              },
+            ]);
+            fetchMemories(session.userId, session.characterId, session.token);
+            return;
+          }
+        }
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `err-${Date.now()}`,
+            role: 'assistant',
+            content: 'Authentication expired. Session reset. Please try sending again.',
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          },
+        ]);
       } else {
         const errJson = await res.json().catch(() => ({}));
         setMessages((prev) => [
@@ -270,7 +346,7 @@ export default function App() {
           {
             id: `err-${Date.now()}`,
             role: 'assistant',
-            content: `Error from server: ${errJson.message || res.statusText || 'Failed to process message'}`,
+            content: `Error from server: ${errJson.message || errJson.detail || res.statusText || 'Failed to process message'}`,
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           },
         ]);
@@ -283,7 +359,7 @@ export default function App() {
         {
           id: `err-${Date.now()}`,
           role: 'assistant',
-          content: `Network connection error: ${errMsg}`,
+          content: `Network connection error: ${errMsg}. Please ensure backend is running at http://localhost:8010`,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         },
       ]);
@@ -307,7 +383,7 @@ export default function App() {
 
     setLoadingRetrieval(true);
     try {
-      const res = await fetch('/api/v1/memory/retrieve', {
+      const res = await fetch(`${API_BASE}/api/v1/memory/retrieve`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -335,7 +411,7 @@ export default function App() {
   const handleDeleteMemory = async (memoryId: string) => {
     if (!token) return;
     try {
-      const res = await fetch(`/api/v1/memory/${memoryId}`, {
+      const res = await fetch(`${API_BASE}/api/v1/memory/${memoryId}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -384,8 +460,16 @@ export default function App() {
           </div>
         </div>
 
-        {/* User Identity Pill */}
+        {/* User Identity Pill & Controls */}
         <div className="flex items-center gap-3">
+          <button
+            onClick={handleResetSession}
+            className="glass-button px-3 py-1.5 rounded-full flex items-center gap-1.5 text-xs text-slate-300 hover:text-white hover:border-blue-500/50 transition-all cursor-pointer"
+            title="Reset active user session and obtain fresh credentials"
+          >
+            <RefreshCw className="w-3.5 h-3.5 text-blue-400" />
+            <span>Reset Session</span>
+          </button>
           <div className="glass-panel px-3 py-1.5 rounded-full flex items-center gap-2 text-xs text-slate-300">
             <User className="w-3.5 h-3.5 text-blue-400" />
             <span>IDOR-Safe User Isolation</span>

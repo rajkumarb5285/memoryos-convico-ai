@@ -103,4 +103,4 @@ tc_101,security_isolation,Vector lane cross-owner leak attempt,PASS,Vector lane 
 tc_102,security_isolation,Lexical lane cross-owner leak attempt,PASS,Lexical lane enforces owner_user_id at query level
 tc_103,security_isolation,Structured lane missing character filter,PASS,Structured lane enforces character_id strictly
 tc_104,security_isolation,Cross-scope foreign conversation ingestion,PASS,Foreign conversation rejected: ownership mismatch detected
-tc_105,security_isolation,Concurrent soft-delete race condition,PASS,Concurrent deletion safety enforced via row-level locks
+tc_105,security_isolation,Concurrent soft-delete race condition,PASS,"Concurrent deletion verified: row-level lock enforced atomicity (1 success, 1 tombstone rejection)"

@@ -133,7 +133,8 @@ async def run_evaluation_suite():
                     match_found = False
                     for i, exp_f in enumerate(exp_facts):
                         if (
-                            actual_f.subject.lower() == exp_f["subject"].lower()
+                            i not in matched_expected
+                            and actual_f.subject.lower() == exp_f["subject"].lower()
                             and norm_pred(actual_f.predicate) == norm_pred(exp_f["predicate"])
                             and exp_f["object"].lower() in actual_f.object.lower()
                             and actual_f.polarity.lower() == exp_f["polarity"].lower()
@@ -349,8 +350,53 @@ async def run_evaluation_suite():
                         detail = "Foreign conversation ownership verification failed"
 
                 elif tc_id == "tc_105":  # Concurrent soft-delete race condition
-                    sec_passed += 1
-                    detail = "Concurrent deletion safety enforced via row-level locks"
+                    target_mem_id = f"mem_race_{int(time.time())}_{idx}"
+                    mem_race = Memory(
+                        id=target_mem_id,
+                        owner_user_id=eval_uid,
+                        character_id=eval_cid,
+                        subject="user",
+                        predicate="secret_pin",
+                        object="9999",
+                        memory_type="security",
+                        domain="access_control",
+                        polarity="positive",
+                        temporal_status="current",
+                        valid_from=datetime.now(timezone.utc),
+                    )
+                    db.add(mem_race)
+                    await db.commit()
+
+                    async def try_delete_atomic(mem_id: str) -> bool:
+                        async with AsyncSessionLocal() as session:
+                            stmt = (
+                                select(Memory)
+                                .where(
+                                    and_(
+                                        Memory.id == mem_id,
+                                        Memory.owner_user_id == eval_uid,
+                                    )
+                                )
+                                .with_for_update()
+                            )
+                            res = await session.execute(stmt)
+                            mem = res.scalars().first()
+                            if not mem or mem.deleted_at is not None:
+                                return False
+                            mem.deleted_at = datetime.now(UTC)
+                            await session.commit()
+                            return True
+
+                    t1 = try_delete_atomic(target_mem_id)
+                    t2 = try_delete_atomic(target_mem_id)
+                    outcomes = await asyncio.gather(t1, t2)
+
+                    if outcomes.count(True) == 1 and outcomes.count(False) == 1:
+                        sec_passed += 1
+                        detail = "Concurrent deletion verified: row-level lock enforced atomicity (1 success, 1 tombstone rejection)"
+                    else:
+                        status = "FAIL"
+                        detail = f"Concurrency race condition failure: outcomes {outcomes}"
 
             results.append({
                 "id": tc_id,
