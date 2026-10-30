@@ -13,28 +13,28 @@ class ExtractedFact(BaseModel):
         ...,
         description="Value/entity of the predicate (e.g., 'chai', 'Pune', 'Google')",
     )
-    raw_text: str | None = Field(None, description="The original textual evidence span")
+    raw_text: str | None = Field(default=None, description="The original textual evidence span")
     memory_type: str = Field(
-        "fact",
+        default="fact",
         description="Category: 'preference', 'location', 'employment', 'identity', 'plan', 'activity'",
     )
     domain: str = Field(
-        "personal",
+        default="personal",
         description="Domain: 'food', 'work', 'geography', 'personal', 'activity', 'education'",
     )
-    polarity: str = Field("positive", description="'positive', 'negative', or 'neutral'")
-    temporal_status: str = Field("current", description="'current', 'historical', or 'future'")
-    confidence: float = Field(1.0, ge=0.0, le=1.0, description="Extraction confidence score")
+    polarity: str = Field(default="positive", description="'positive', 'negative', or 'neutral'")
+    temporal_status: str = Field(default="current", description="'current', 'historical', or 'future'")
+    confidence: float = Field(default=1.0, ge=0.0, le=1.0, description="Extraction confidence score")
     valid_from: datetime | None = None
     valid_until: datetime | None = None
 
 
 class ExtractionResult(BaseModel):
     is_assertion: bool = Field(
-        True,
+        default=True,
         description="True if the message contains assertive knowledge, False if question/noise",
     )
-    language: str = Field("en", description="Detected language ('en', 'hinglish', etc.)")
+    language: str = Field(default="en", description="Detected language ('en', 'hinglish', etc.)")
     facts: list[ExtractedFact] = Field(default_factory=list)
-    confidence: float = Field(1.0, ge=0.0, le=1.0)
+    confidence: float = Field(default=1.0, ge=0.0, le=1.0)
     raw_message: str

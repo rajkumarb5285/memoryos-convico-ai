@@ -13,7 +13,7 @@ from app.cache.redis_service import cache_service
 from app.core.logging import logger
 from app.core.security import Principal, verify_user_ownership
 from app.db.session import get_db
-from app.extraction.extractor import DeterministicMemoryExtractor
+from app.extraction import get_memory_extractor
 from app.lifecycle.resolver import lifecycle_resolver
 from app.models.character import Character
 from app.models.conversation import Conversation
@@ -31,7 +31,7 @@ from app.schemas.memory import (
 from app.schemas.retrieval import RetrievalRequest, RetrievalResponse
 
 router = APIRouter()
-extractor = DeterministicMemoryExtractor()
+extractor = get_memory_extractor()
 
 
 @router.post("/character", response_model=CharacterResponse, status_code=status.HTTP_201_CREATED)

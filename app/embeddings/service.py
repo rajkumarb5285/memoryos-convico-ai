@@ -46,7 +46,7 @@ class FastEmbedService(BaseEmbeddingService):
             return self._cache[h]
 
         generator = self._model.embed([cleaned])
-        embedding_array = next(generator)
+        embedding_array = next(iter(generator))
         vec = self._validate_vector([float(x) for x in embedding_array])
         self._cache[h] = vec
         return vec

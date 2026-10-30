@@ -42,8 +42,10 @@ class Settings(BaseSettings):
     BATCH_EMBEDDING_SIZE: int = 32
 
     # LLM & Extraction
-    LLM_PROVIDER: str = "offline_deterministic"  # options: "offline_deterministic", "openai", "gemini"
+    LLM_PROVIDER: str = "groq"  # options: "groq", "offline_deterministic", "openai"
     LLM_API_KEY: str | None = None
+    GROQ_API_KEY: str | None = None
+    GROQ_MODEL: str = "qwen/qwen3.8-27b"
     EXTRACTION_CONFIDENCE_THRESHOLD: float = 0.50
 
     # Retrieval

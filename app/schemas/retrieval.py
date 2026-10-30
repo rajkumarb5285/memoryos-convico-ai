@@ -10,10 +10,12 @@ class RetrievalRequest(BaseModel):
         description="Natural language retrieval query (English or Hinglish)",
     )
     character_id: str = Field(..., description="Character scope to isolate memory")
-    conversation_id: str | None = Field(None, description="Optional conversation context for follow-up rewriting")
-    temporal_filter: str | None = Field("all", description="'current', 'historical', or 'all'")
-    domain_filter: str | None = Field(None, description="Domain constraint if known")
-    limit: int = Field(5, ge=1, le=50, description="Maximum number of evidence candidates")
+    conversation_id: str | None = Field(
+        default=None, description="Optional conversation context for follow-up rewriting"
+    )
+    temporal_filter: str | None = Field(default="all", description="'current', 'historical', or 'all'")
+    domain_filter: str | None = Field(default=None, description="Domain constraint if known")
+    limit: int = Field(default=5, ge=1, le=50, description="Maximum number of evidence candidates")
 
 
 class RetrievedEvidence(BaseModel):

@@ -65,9 +65,10 @@ def decode_access_token(token: str) -> Principal:
             algorithms=[settings.ALGORITHM],
             options={"require": ["exp", "sub"]},
         )
-        user_id: str = payload.get("sub")
-        if not user_id:
+        sub_val = payload.get("sub")
+        if not sub_val:
             raise AuthenticationError("Token missing subject claim")
+        user_id = str(sub_val)
         return Principal(user_id=user_id, username=payload.get("username"))
     except jwt.ExpiredSignatureError:
         raise AuthenticationError("Access token has expired")
