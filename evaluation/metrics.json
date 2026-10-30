@@ -1,5 +1,5 @@
 {
-  "evaluation_timestamp": "2026-10-30T15:16:20.804460+00:00",
+  "evaluation_timestamp": "2026-10-30T16:07:35.682496+00:00",
   "total_test_cases": 105,
   "passed_test_cases": 105,
   "pass_rate_percentage": 100.0,
@@ -13,11 +13,11 @@
   },
   "retrieval_metrics": {
     "queries_evaluated": 16,
-    "precision_at_5": 1.0,
+    "precision_at_5": 0.2,
     "recall_at_5": 1.0,
     "insufficient_evidence_accuracy": 1.0,
-    "average_latency_ms": 40.8,
-    "p95_latency_ms": 68.88
+    "average_latency_ms": 111.19,
+    "p95_latency_ms": 270.43
   },
   "security_metrics": {
     "isolation_tests_evaluated": 10,

@@ -7,9 +7,10 @@ Please record a 3–5 minute screen recording demonstrating:
 
 1. Docker containers starting: `docker compose up -d`
 2. Database migration: `alembic upgrade head`
-3. Running the full test suite: `pytest tests/ -v` (31/31 passing)
-4. Starting the API server: `uvicorn app.main:app --reload`
-5. Live API demo via Swagger UI (http://localhost:8000/docs):
+3. Running the full test suite: `pytest tests/ -v` (37/37 passing)
+4. Starting the API server: `uvicorn app.main:app --port 8010` (or 8000 if unoccupied)
+5. Live API & Frontend demo:
+   a. Web UI at http://localhost:8010/app or Swagger UI at http://localhost:8010/docs
    a. Register a user and obtain JWT
    b. Create a character
    c. Create a conversation

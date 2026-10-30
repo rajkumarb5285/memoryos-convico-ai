@@ -31,9 +31,9 @@ class MemoryLifecycleResolver:
         norm_obj = fact.object.strip()
 
         # Canonicalize predicate aliases
-        if norm_pred in ["live_in", "reside_in", "resides_in"]:
+        if norm_pred in ["live_in", "reside_in", "resides_in", "lived_in"]:
             norm_pred = "lives_in"
-        elif norm_pred in ["work_at", "works_at", "employed_by"]:
+        elif norm_pred in ["work_at", "works_at", "employed_by", "worked_at"]:
             norm_pred = "employed_at"
         elif norm_pred in ["like", "loves", "enjoy"]:
             norm_pred = "likes"

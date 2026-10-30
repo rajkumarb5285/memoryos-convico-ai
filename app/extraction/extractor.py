@@ -50,29 +50,31 @@ class DeterministicMemoryExtractor(BaseMemoryExtractor):
         text_clean = text.strip()
         low = text_clean.lower()
 
-        # Check pure questions
-        for pat in self.QUESTION_STARTERS:
-            if re.search(pat, low):
-                # If it doesn't assert personal fact like "I live in Pune, do you?", it's pure question
-                if not any(
-                    assertion_marker in low
-                    for assertion_marker in [
-                        "i live",
-                        "i work",
-                        "my name",
-                        "main rehta",
-                        "mera naam",
-                        "i like",
-                        "mujhe pasand",
-                    ]
-                ):
-                    return True
-
-        if text_clean.endswith("?") and not any(m in low for m in ["i ", "my ", "main ", "mujhe ", "mera ", "meri "]):
+        # Check hypothetical / conditional statements
+        # e.g., "If I moved to Delhi...", "Agar main Delhi gaya...", "Suppose I..."
+        if re.search(r"^(if\s+i|agar\s+main|agar\s+hum|suppose\s+i|hypothetically)\b", low):
+            return True
+        if re.search(r"\bwould\s+(?:look|move|live|work|like|go)\b", low) and re.search(r"\b(if|agar)\b", low):
             return True
 
+        # Check pure questions
+        if text_clean.endswith("?"):
+            # Check question structure
+            if re.search(
+                r"^(do|did|does|is|are|am|will|would|can|could|should|what|where|who|when|why|how|kya|kahan|kaise)\b",
+                low,
+            ):
+                return True
+            if not any(k in low for k in ["i live in", "i work at", "my name is", "main rehta hoon"]):
+                return True
+
+        # Check question starters
+        for pat in self.QUESTION_STARTERS:
+            if re.search(pat, low):
+                return True
+
         # Check pure greetings
-        if re.fullmatch(r"(hello|hi|hey|good\s+(morning|afternoon|evening)|namaste)[!.\s]*", low):
+        if re.fullmatch(r"(hello|hi|hey|good\s+(morning|afternoon|evening)|namaste|pranam)[!.\s]*", low):
             return True
 
         return False
@@ -100,9 +102,9 @@ class DeterministicMemoryExtractor(BaseMemoryExtractor):
         lang = "hinglish" if self._is_hinglish(raw) else "en"
         facts: list[ExtractedFact] = []
 
-        # Split clauses by conjunctions for multi-fact extraction
+        # Split clauses by punctuation and conjunctions for multi-fact extraction
         clauses = re.split(
-            r"(?<=[.,;!?])\s+|\s+(?:and|but|however|lekin|aur|par|before\s+joining|after\s+leaving)\s+",
+            r"[,;!?]+|\s+(?:and|but|however|lekin|magar|aur|par|before\s+joining|after\s+leaving)\s+",
             raw,
             flags=re.IGNORECASE,
         )
@@ -200,59 +202,81 @@ class DeterministicMemoryExtractor(BaseMemoryExtractor):
             low_c = clause.lower()
 
             # --- PREFERENCES: HINGLISH ---
-            # Negation: "Mujhe coffee pasand nahi hai" / "Mujhe cricket bilkul pasand nahi"
+            # Negation: "Mujhe coffee pasand nahi hai" / "coffee pasand nahin" / "coffee pasand nhi" / "coffee nahi"
             match_hg_neg = re.search(
-                r"mujhe\s+([a-zA-Z0-9\s]+?)\s+(?:bilkul\s+)?pasand\s+nah(?:i|ee)\b",
+                r"(?:mujhe\s+)?([a-zA-Z0-9\s]+?)\s+(?:bilkul\s+)?(?:pasand\s+)?(?:nah[iiee]+n?|nhi|naa?)(?:\s+hai)?$",
                 low_c,
             )
+            if not match_hg_neg:
+                match_hg_neg = re.search(
+                    r"(?:mujhe\s+)?([a-zA-Z0-9\s]+?)\s+(?:bilkul\s+)?(?:pasand\s+)?(?:nah[iiee]+n?|nhi|naa?)\s+hai",
+                    low_c,
+                )
             if match_hg_neg:
                 item = match_hg_neg.group(1).strip()
-                facts.append(
-                    ExtractedFact(
-                        subject="user",
-                        predicate="dislikes",
-                        object=item,
-                        raw_text=clause,
-                        memory_type="preference",
-                        domain="food" if item in ["coffee", "tea", "chai", "biryani", "sushi", "pizza"] else "personal",
-                        polarity="negative",
-                        temporal_status="current",
-                        confidence=0.92,
-                        valid_from=now,
+                item = re.sub(
+                    r"\b(bahut|bada|jyada|zyada|bilkul|lekin|magar|aur|par|and|but)\b",
+                    "",
+                    item,
+                    flags=re.IGNORECASE,
+                ).strip()
+                if item and item not in ["i", "main", "mera", "mujhe", "yeh", "woh"]:
+                    facts.append(
+                        ExtractedFact(
+                            subject="user",
+                            predicate="dislikes",
+                            object=item,
+                            raw_text=clause,
+                            memory_type="preference",
+                            domain="food"
+                            if item in ["coffee", "tea", "chai", "biryani", "sushi", "pizza"]
+                            else "personal",
+                            polarity="negative",
+                            temporal_status="current",
+                            confidence=0.92,
+                            valid_from=now,
+                        )
                     )
-                )
-                continue
+                    continue
 
-            # Positive: "chai bahut achi lagti hai" / "mujhe tea pasand hai" / "music achha lagta hai"
+            # Positive: "chai bahut achi lagti hai" / "mujhe tea pasand hai" / "music achha lagta hai" / "chai pasand hai"
             match_hg_pos = re.search(
                 r"(?:mujhe\s+)?([a-zA-Z0-9\s]+?)\s+(?:bahut\s+)?(?:achi|achha|badiya)\s+lag(?:ti|ta)?\s+hai",
                 low_c,
             )
             if not match_hg_pos:
-                match_hg_pos = re.search(r"mujhe\s+([a-zA-Z0-9\s]+?)\s+pasand\s+hai", low_c)
+                match_hg_pos = re.search(r"(?:mujhe\s+)?([a-zA-Z0-9\s]+?)\s+pasand\s+hai", low_c)
             if match_hg_pos:
                 item = match_hg_pos.group(1).strip()
-                item = re.sub(r"^(but|and|aur|lekin|magar|par)\s+", "", item, flags=re.IGNORECASE).strip()
-                facts.append(
-                    ExtractedFact(
-                        subject="user",
-                        predicate="likes",
-                        object=item,
-                        raw_text=clause,
-                        memory_type="preference",
-                        domain="food" if item in ["coffee", "tea", "chai", "biryani", "sushi", "pizza"] else "personal",
-                        polarity="positive",
-                        temporal_status="current",
-                        confidence=0.92,
-                        valid_from=now,
+                item = re.sub(
+                    r"\b(bahut|bada|jyada|zyada|bilkul|lekin|magar|aur|par|and|but)\b",
+                    "",
+                    item,
+                    flags=re.IGNORECASE,
+                ).strip()
+                if item and item not in ["i", "main", "mera", "mujhe", "yeh", "woh"]:
+                    facts.append(
+                        ExtractedFact(
+                            subject="user",
+                            predicate="likes",
+                            object=item,
+                            raw_text=clause,
+                            memory_type="preference",
+                            domain="food"
+                            if item in ["coffee", "tea", "chai", "biryani", "sushi", "pizza"]
+                            else "personal",
+                            polarity="positive",
+                            temporal_status="current",
+                            confidence=0.92,
+                            valid_from=now,
+                        )
                     )
-                )
-                continue
+                    continue
 
             # --- PREFERENCES: ENGLISH ---
-            # Negation: "I don't like coffee" / "I hate sushi" / "I dislike tea"
+            # Negation: "I don't like coffee" / "I do not like coffee" / "I hate sushi" / "I dislike tea"
             match_en_neg = re.search(
-                r"I\s+(?:do\s*n['o]t\s+like|dislike|hate)\s+([a-zA-Z0-9\s]+)",
+                r"I\s+(?:do\s*n['o]t\s+like|do\s+not\s+like|dislike|hate)\s+([a-zA-Z0-9\s]+)",
                 clause,
                 re.IGNORECASE,
             )
@@ -377,7 +401,11 @@ class DeterministicMemoryExtractor(BaseMemoryExtractor):
 
             # --- LOCATIONS: ENGLISH ---
             # Moved to / lives in / lived in
-            match_en_moved = re.search(r"I\s+(?:recently\s+)?moved\s+to\s+([a-zA-Z\s]+)", clause, re.IGNORECASE)
+            match_en_moved = re.search(
+                r"I\s+(?:recently\s+|just\s+)?moved\s+(?:back\s+)?to\s+([a-zA-Z\s]+)",
+                clause,
+                re.IGNORECASE,
+            )
             if match_en_moved:
                 city = match_en_moved.group(1).strip().capitalize()
                 facts.append(
@@ -396,7 +424,11 @@ class DeterministicMemoryExtractor(BaseMemoryExtractor):
                 )
                 continue
 
-            match_en_live = re.search(r"I\s+(?:currently\s+)?live\s+in\s+([a-zA-Z\s]+)", clause, re.IGNORECASE)
+            match_en_live = re.search(
+                r"(?:Now\s+)?I\s+(?:currently\s+|now\s+)?live\s+in\s+([a-zA-Z\s]+)",
+                clause,
+                re.IGNORECASE,
+            )
             if match_en_live:
                 city = match_en_live.group(1).strip().capitalize()
                 facts.append(
@@ -425,7 +457,7 @@ class DeterministicMemoryExtractor(BaseMemoryExtractor):
                 facts.append(
                     ExtractedFact(
                         subject="user",
-                        predicate="lived_in",
+                        predicate="lives_in",
                         object=city,
                         raw_text=clause,
                         memory_type="location",

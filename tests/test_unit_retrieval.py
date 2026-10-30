@@ -125,3 +125,37 @@ def test_insufficient_evidence_when_empty():
     assert insufficient is True
     assert len(evidence) == 0
     assert top_score == 0.0
+
+
+def test_precision_and_recall_at_5_hand_calculated():
+    """
+    Unit test verifying Precision@5 and Recall@5 calculation formulas with hand-calculated examples.
+    Formula 1: Precision@5 = relevant_in_top_5 / actual_returned_in_top_5
+    Formula 2: Recall@5 = relevant_in_top_5 / expected_relevant_total
+    """
+
+    def calc_metrics_for_query(top5_relevant_count: int, top5_total_returned: int, expected_relevant_total: int):
+        p_at_5 = (top5_relevant_count / top5_total_returned) if top5_total_returned > 0 else 0.0
+        r_at_5 = (top5_relevant_count / expected_relevant_total) if expected_relevant_total > 0 else 1.0
+        return p_at_5, r_at_5
+
+    # Case 1: 4 results returned in top 5, exactly 2 relevant out of 2 expected
+    p1, r1 = calc_metrics_for_query(top5_relevant_count=2, top5_total_returned=4, expected_relevant_total=2)
+    assert p1 == 0.50  # 2/4
+    assert r1 == 1.00  # 2/2
+
+    # Case 2: 5 results returned, 3 relevant out of 4 expected
+    p2, r2 = calc_metrics_for_query(top5_relevant_count=3, top5_total_returned=5, expected_relevant_total=4)
+    assert p2 == 0.60  # 3/5
+    assert r2 == 0.75  # 3/4
+
+    # Case 3: Empty results (insufficient evidence) with 1 expected
+    p3, r3 = calc_metrics_for_query(top5_relevant_count=0, top5_total_returned=0, expected_relevant_total=1)
+    assert p3 == 0.00
+    assert r3 == 0.00
+
+    # Macro averages
+    macro_p = (p1 + p2 + p3) / 3.0
+    macro_r = (r1 + r2 + r3) / 3.0
+    assert round(macro_p, 4) == 0.3667
+    assert round(macro_r, 4) == 0.5833

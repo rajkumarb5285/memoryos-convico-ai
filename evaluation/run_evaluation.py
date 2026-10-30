@@ -35,6 +35,8 @@ async def run_evaluation_suite():
     ret_total = 0
     ret_hits = 0
     ret_insufficient_correct = 0
+    per_query_p5: list[float] = []
+    per_query_r5: list[float] = []
 
     # Security counters
     sec_total = 0
@@ -103,13 +105,21 @@ async def run_evaluation_suite():
                     detail = f"Assertion mismatch: expected {exp_assertion}, got {res.is_assertion}"
 
                 # Fact matching
+                def norm_pred(p: str) -> str:
+                    plow = p.lower()
+                    if plow in ["lived_in", "live_in", "resides_in"]:
+                        return "lives_in"
+                    if plow in ["worked_at", "work_at", "employed_by"]:
+                        return "employed_at"
+                    return plow
+
                 matched_expected = set()
                 for actual_f in res.facts:
                     match_found = False
                     for i, exp_f in enumerate(exp_facts):
                         if (
                             actual_f.subject.lower() == exp_f["subject"].lower()
-                            and actual_f.predicate.lower() == exp_f["predicate"].lower()
+                            and norm_pred(actual_f.predicate) == norm_pred(exp_f["predicate"])
                             and exp_f["object"].lower() in actual_f.object.lower()
                             and actual_f.polarity.lower() == exp_f["polarity"].lower()
                             and actual_f.temporal_status.lower() == exp_f["temporal_status"].lower()
@@ -149,13 +159,23 @@ async def run_evaluation_suite():
                         status = "FAIL"
                         detail = "Expected insufficient evidence flag, got false"
                 else:
-                    # Check top 5 evidence
-                    hit = False
-                    for ev in ret_res.evidence[:5]:
-                        if exp_obj and exp_obj.lower() in ev.object.lower():
-                            hit = True
-                            break
-                    if hit:
+                    # Precision@5 and Recall@5 per query (macro-averaged)
+                    top5 = ret_res.evidence[:5]
+                    relevant_count = sum(
+                        1
+                        for ev in top5
+                        if exp_obj and exp_obj.lower() in ev.object.lower()
+                    )
+                    actual_returned = len(top5)
+                    expected_count = 1  # test case specifies 1 ground-truth relevant fact
+
+                    p_at_5 = (relevant_count / actual_returned) if actual_returned > 0 else 0.0
+                    r_at_5 = (relevant_count / expected_count) if expected_count > 0 else 1.0
+
+                    per_query_p5.append(p_at_5)
+                    per_query_r5.append(r_at_5)
+
+                    if relevant_count > 0:
                         ret_hits += 1
                     else:
                         status = "FAIL"
@@ -193,9 +213,9 @@ async def run_evaluation_suite():
     rec = ext_tp / (ext_tp + ext_fn) if (ext_tp + ext_fn) > 0 else 1.0
     f1 = 2 * (prec * rec) / (prec + rec) if (prec + rec) > 0 else 0.0
 
-    ret_hits_total = [tc for tc in cases if tc["type"] == "retrieval" and not tc["expected_insufficient"]]
-    ret_p5 = ret_hits / len(ret_hits_total) if ret_hits_total else 1.0
-    ret_r5 = ret_hits / len(ret_hits_total) if ret_hits_total else 1.0
+    # Macro-averaged Precision@5 and Recall@5 across retrieval queries
+    ret_p5 = float(np.mean(per_query_p5)) if per_query_p5 else 1.0
+    ret_r5 = float(np.mean(per_query_r5)) if per_query_r5 else 1.0
 
     avg_lat = float(np.mean(retrieval_latencies_ms)) if retrieval_latencies_ms else 0.0
     p95_lat = float(np.percentile(retrieval_latencies_ms, 95)) if retrieval_latencies_ms else 0.0

@@ -104,3 +104,66 @@ async def test_dietary_preference():
     diet_fact = next((f for f in res.facts if f.predicate == "diet"), None)
     assert diet_fact is not None
     assert "vegetarian" in diet_fact.object.lower()
+
+
+@pytest.mark.asyncio
+async def test_hinglish_spelling_variants_and_compact_preferences():
+    # 1. Spelling variant 'nahin'
+    res1 = await extractor.extract("Mujhe coffee pasand nahin hai.")
+    assert res1.is_assertion is True
+    assert any(f.predicate == "dislikes" and "coffee" in f.object.lower() for f in res1.facts)
+
+    # 2. Spelling variant 'nhi'
+    res2 = await extractor.extract("Mujhe coffee pasand nhi hai.")
+    assert res2.is_assertion is True
+    assert any(f.predicate == "dislikes" and "coffee" in f.object.lower() for f in res2.facts)
+
+    # 3. Compact preference: "Chai pasand hai, coffee nahi."
+    res3 = await extractor.extract("Chai pasand hai, coffee nahi.")
+    assert res3.is_assertion is True
+    chai = next((f for f in res3.facts if "chai" in f.object.lower()), None)
+    coffee = next((f for f in res3.facts if "coffee" in f.object.lower()), None)
+    assert chai is not None and chai.polarity == "positive"
+    assert coffee is not None and coffee.polarity == "negative"
+
+    # 4. Multi-clause with 'lekin'
+    res4 = await extractor.extract("Mujhe chai pasand hai lekin coffee pasand nahi hai.")
+    assert res4.is_assertion is True
+    assert len(res4.facts) == 2
+
+
+@pytest.mark.asyncio
+async def test_filter_hypotheticals_and_self_questions():
+    # Questions about self should not create memories
+    res1 = await extractor.extract("Do I like coffee?")
+    assert res1.is_assertion is False
+    assert len(res1.facts) == 0
+
+    # Hypothetical conditionals should not create memories
+    res2 = await extractor.extract("If I moved to Delhi, I would look for a job.")
+    assert res2.is_assertion is False
+    assert len(res2.facts) == 0
+
+    # Question about 3rd party
+    res3 = await extractor.extract("Do you know someone at Google?")
+    assert res3.is_assertion is False
+    assert len(res3.facts) == 0
+
+
+@pytest.mark.asyncio
+async def test_location_sequence_extraction():
+    # Test "I lived in Mumbai", "I now live in Pune", "I moved back to Mumbai"
+    r1 = await extractor.extract("I lived in Mumbai.")
+    assert r1.facts[0].predicate == "lives_in"
+    assert r1.facts[0].temporal_status == "historical"
+    assert r1.facts[0].object == "Mumbai"
+
+    r2 = await extractor.extract("I now live in Pune.")
+    assert r2.facts[0].predicate == "lives_in"
+    assert r2.facts[0].temporal_status == "current"
+    assert r2.facts[0].object == "Pune"
+
+    r3 = await extractor.extract("I moved back to Mumbai.")
+    assert r3.facts[0].predicate == "lives_in"
+    assert r3.facts[0].temporal_status == "current"
+    assert r3.facts[0].object == "Mumbai"

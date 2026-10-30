@@ -6,9 +6,9 @@ from reportlab.platypus import HRFlowable, PageBreak, Paragraph, SimpleDocTempla
 
 
 def build_pdf_documentation():
+    # Remove duplicate template if present
     target_paths = [
         Path("docs/TECHNICAL_DOCUMENTATION.pdf"),
-        Path("CANDIDATE_NAME_CONVICO_AI_ASSIGNMENT/03_TECHNICAL_DOCUMENTATION.pdf"),
         Path("RAJKUMAR_PANDEY_CONVICO_AI_ASSIGNMENT/03_TECHNICAL_DOCUMENTATION.pdf"),
     ]
 
@@ -241,10 +241,16 @@ def build_pdf_documentation():
         body_style,
     ))
 
-    for p in target_paths:
-        doc = SimpleDocTemplate(str(p), pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
-        doc.build(elements)
-        print(f"Technical documentation PDF generated successfully at {p}")
+    main_pdf = Path("docs/TECHNICAL_DOCUMENTATION.pdf")
+    main_pdf.parent.mkdir(parents=True, exist_ok=True)
+    doc = SimpleDocTemplate(str(main_pdf), pagesize=letter, rightMargin=36, leftMargin=36, topMargin=36, bottomMargin=36)
+    doc.build(elements)
+    print(f"Technical documentation PDF generated successfully at {main_pdf}")
+
+    sub_pdf = Path("RAJKUMAR_PANDEY_CONVICO_AI_ASSIGNMENT/03_TECHNICAL_DOCUMENTATION.pdf")
+    sub_pdf.parent.mkdir(parents=True, exist_ok=True)
+    sub_pdf.write_bytes(main_pdf.read_bytes())
+    print(f"Technical documentation PDF copied successfully to {sub_pdf}")
 
 
 if __name__ == "__main__":
