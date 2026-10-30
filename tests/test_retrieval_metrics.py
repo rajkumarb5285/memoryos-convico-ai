@@ -1,4 +1,4 @@
-from app.retrieval import compute_retrieval_metrics
+from app.retrieval.coordinator import compute_retrieval_metrics
 
 
 def test_five_relevant_results():

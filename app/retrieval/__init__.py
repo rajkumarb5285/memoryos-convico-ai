@@ -1,5 +1,8 @@
-from app.retrieval.coordinator import RetrievalCoordinator, retrieval_coordinator
-from app.retrieval.metrics import compute_retrieval_metrics
+from app.retrieval.coordinator import (
+    RetrievalCoordinator,
+    compute_retrieval_metrics,
+    retrieval_coordinator,
+)
 
 __all__ = [
     "RetrievalCoordinator",
