@@ -47,6 +47,7 @@ async def run_evaluation_suite():
     ret_insufficient_correct = 0
     per_query_p5: list[float] = []
     per_query_r5: list[float] = []
+    per_query_mrr: list[float] = []
 
     # Security counters
     sec_total = 0
@@ -187,8 +188,17 @@ async def run_evaluation_suite():
                     p_at_5 = (relevant_count / actual_returned) if actual_returned > 0 else 0.0
                     r_at_5 = (relevant_count / expected_count) if expected_count > 0 else 1.0
 
+                    # MRR calculation
+                    first_rank = None
+                    for rank_idx, ev in enumerate(top5, start=1):
+                        if exp_obj and exp_obj.lower() in ev.object.lower():
+                            first_rank = rank_idx
+                            break
+                    rr = (1.0 / first_rank) if first_rank else 0.0
+
                     per_query_p5.append(p_at_5)
                     per_query_r5.append(r_at_5)
+                    per_query_mrr.append(rr)
 
                     if relevant_count > 0:
                         ret_hits += 1
@@ -482,6 +492,7 @@ async def run_evaluation_suite():
     # Macro-averaged Precision@5 and Recall@5 across retrieval queries
     ret_p5 = float(np.mean(per_query_p5)) if per_query_p5 else 1.0
     ret_r5 = float(np.mean(per_query_r5)) if per_query_r5 else 1.0
+    ret_mrr = float(np.mean(per_query_mrr)) if per_query_mrr else 0.0
 
     avg_lat = float(np.mean(retrieval_latencies_ms)) if retrieval_latencies_ms else 0.0
     p95_lat = float(np.percentile(retrieval_latencies_ms, 95)) if retrieval_latencies_ms else 0.0
@@ -516,6 +527,7 @@ async def run_evaluation_suite():
             "queries_evaluated": ret_total,
             "precision_at_5": round(ret_p5, 4),
             "recall_at_5": round(ret_r5, 4),
+            "mean_reciprocal_rank_mrr": round(ret_mrr, 4),
             "insufficient_evidence_queries_evaluated": ret_insufficient_total,
             "insufficient_evidence_accuracy": round(insufficient_acc, 4),
             "average_latency_ms": round(avg_lat, 2),
@@ -571,6 +583,7 @@ async def run_evaluation_suite():
     print(f"Extraction F1 Score:            {metrics['extraction_metrics']['f1_score']}")
     print(f"Retrieval Recall@5:             {metrics['retrieval_metrics']['recall_at_5']}")
     print(f"Retrieval Precision@5:          {metrics['retrieval_metrics']['precision_at_5']}")
+    print(f"Retrieval MRR:                  {metrics['retrieval_metrics']['mean_reciprocal_rank_mrr']}")
     print(f"Insufficient Evidence Accuracy: {metrics['retrieval_metrics']['insufficient_evidence_accuracy']}")
     print(f"Average Retrieval Latency:      {metrics['retrieval_metrics']['average_latency_ms']} ms")
     print(f"P95 Retrieval Latency:          {metrics['retrieval_metrics']['p95_latency_ms']} ms")

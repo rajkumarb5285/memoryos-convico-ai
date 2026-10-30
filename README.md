@@ -177,8 +177,11 @@ PYTHONPATH=. python evaluation/run_benchmark.py
 | Extraction F1 | **1.0** |
 | Retrieval R@5 | **1.0** |
 | Retrieval P@5 | **0.20** |
-| Avg retrieval latency | 68 ms |
-| P95 retrieval latency | 150 ms |
+| Retrieval MRR | **0.9583** |
+| Contradiction Resolution Acc | **1.0** |
+| Duplicate Handling Acc | **1.0** |
+| Avg retrieval latency | 93 ms |
+| P95 retrieval latency | 182 ms |
 | Cross-user leakage rate | **0.0** |
 
 Benchmark (50 concurrent requests):

@@ -206,7 +206,35 @@ class MemoryLifecycleResolver:
                 created_memories.append(new_mem)
                 continue
 
-            # Check C: Standard Ingestion (e.g. historical facts or multi-valued facts)
+            # Check C: Explicit negation of singular predicate (e.g. "Ab main Bangalore mein nahi rehta" / "I no longer live in Bangalore")
+            if fact.predicate in self.SINGULAR_PREDICATES and (
+                fact.polarity == "negative" or fact.temporal_status == "historical"
+            ):
+                prior_neg_stmt = select(Memory).where(
+                    and_(
+                        Memory.owner_user_id == owner_user_id,
+                        Memory.character_id == character_id,
+                        Memory.subject == fact.subject,
+                        Memory.predicate == fact.predicate,
+                        func.lower(Memory.object) == func.lower(fact.object),
+                        Memory.temporal_status == "current",
+                        Memory.deleted_at.is_(None),
+                    )
+                )
+                prior_neg_res = await db.execute(prior_neg_stmt)
+                prior_curr = prior_neg_res.scalars().first()
+                if prior_curr:
+                    prior_curr.temporal_status = "historical"
+                    prior_curr.valid_until = now
+                    prior_curr.updated_at = now
+                    updated_memories.append(prior_curr)
+                    historical_preserved.append(prior_curr.id)
+                    logger.info(
+                        f"Closed current memory {prior_curr.id} ({prior_curr.predicate}: {prior_curr.object}) due to explicit negative assertion."
+                    )
+                    continue
+
+            # Check D: Standard Ingestion (e.g. historical facts or multi-valued facts)
             embed_text = f"{fact.subject} {fact.predicate} {fact.object}"
             vector = embedding_service.embed_text(embed_text)
 

@@ -393,7 +393,7 @@ class DeterministicMemoryExtractor(BaseMemoryExtractor):
                 r"(?:main|ab)\s+([a-zA-Z]+)\s+(?:me(?:in)?\s+rehta\s+hoon|shift\s+ho\s+gaya|move\s+ho\s+gaya)",
                 low_c,
             )
-            if match_hg_loc_curr:
+            if match_hg_loc_curr and not re.search(r"\b(nahi|nahin|nhi)\b", low_c):
                 city = match_hg_loc_curr.group(1).capitalize()
                 facts.append(
                     ExtractedFact(
@@ -406,6 +406,57 @@ class DeterministicMemoryExtractor(BaseMemoryExtractor):
                         polarity="positive",
                         temporal_status="current",
                         confidence=0.92,
+                        valid_from=now,
+                    )
+                )
+                continue
+
+            # Negated location (Hinglish): "Ab main Bangalore mein nahi rehta" / "Main Delhi mein nahi rehta hoon"
+            match_hg_loc_neg = re.search(
+                r"(?:ab\s+main|main|ab)\s+([a-zA-Z]+)\s+me(?:in)?\s+(?:nahi|nahin|nhi)\s+rehta",
+                low_c,
+            )
+            if match_hg_loc_neg:
+                city = match_hg_loc_neg.group(1).capitalize()
+                facts.append(
+                    ExtractedFact(
+                        subject="user",
+                        predicate="lives_in",
+                        object=city,
+                        raw_text=clause,
+                        memory_type="location",
+                        domain="geography",
+                        polarity="negative",
+                        temporal_status="historical",
+                        confidence=0.95,
+                        valid_from=now,
+                    )
+                )
+                continue
+
+            # Negated location (English): "I no longer live in Bangalore" / "I don't live in Delhi anymore"
+            match_en_loc_neg = re.search(
+                r"I\s+(?:no\s+longer\s+live\s+in|do\s*n['o]t\s+live\s+in)\s+([a-zA-Z\s]+?)(?:\s+anymore|$)",
+                clause,
+                re.IGNORECASE,
+            )
+            if match_en_loc_neg:
+                city = (
+                    re.sub(r"\b(anymore|now|currently)\b", "", match_en_loc_neg.group(1), flags=re.IGNORECASE)
+                    .strip()
+                    .capitalize()
+                )
+                facts.append(
+                    ExtractedFact(
+                        subject="user",
+                        predicate="lives_in",
+                        object=city,
+                        raw_text=clause,
+                        memory_type="location",
+                        domain="geography",
+                        polarity="negative",
+                        temporal_status="historical",
+                        confidence=0.95,
                         valid_from=now,
                     )
                 )
