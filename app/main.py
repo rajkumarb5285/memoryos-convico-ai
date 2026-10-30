@@ -1,3 +1,4 @@
+import os
 import time
 import uuid
 from collections.abc import AsyncGenerator
@@ -6,6 +7,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.api.v1.endpoints import auth, health, memory
 from app.api.v1.router import api_router
@@ -143,4 +145,11 @@ async def root():
         "version": "0.1.0",
         "docs": "/docs",
         "health": "/health",
+        "ui": "/app",
     }
+
+
+# Mount Apple-styled Glassmorphism React frontend if built
+frontend_dist = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend", "dist"))
+if os.path.exists(frontend_dist):
+    app.mount("/app", StaticFiles(directory=frontend_dist, html=True), name="frontend")
