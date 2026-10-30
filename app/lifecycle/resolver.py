@@ -1,6 +1,6 @@
 from datetime import UTC, datetime
 
-from sqlalchemy import and_, select
+from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logging import logger
@@ -78,14 +78,14 @@ class MemoryLifecycleResolver:
         for raw_fact in facts:
             fact = self.normalize_fact(raw_fact)
 
-            # 1. Exact Duplicate Check (same subject, predicate, object, polarity, scope, not deleted)
+            # 1. Exact Duplicate Check (same subject, predicate, object case-insensitively, polarity, scope, not deleted)
             dup_stmt = select(Memory).where(
                 and_(
                     Memory.owner_user_id == owner_user_id,
                     Memory.character_id == character_id,
                     Memory.subject == fact.subject,
                     Memory.predicate == fact.predicate,
-                    Memory.object == fact.object,
+                    func.lower(Memory.object) == func.lower(fact.object),
                     Memory.polarity == fact.polarity,
                     Memory.temporal_status == fact.temporal_status,
                     Memory.deleted_at.is_(None),
@@ -107,7 +107,7 @@ class MemoryLifecycleResolver:
                         Memory.character_id == character_id,
                         Memory.subject == fact.subject,
                         Memory.predicate == opposite_pred,
-                        Memory.object == fact.object,
+                        func.lower(Memory.object) == func.lower(fact.object),
                         Memory.temporal_status == "current",
                         Memory.deleted_at.is_(None),
                     )

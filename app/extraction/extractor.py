@@ -151,7 +151,7 @@ class DeterministicMemoryExtractor(BaseMemoryExtractor):
 
         # 2. "I left Google and joined Microsoft"
         match_left = re.search(
-            r"I\s+left\s+([A-Za-z0-9\s]+?)\s+(?:and|to)\s+joined?\s+([A-Za-z0-9\s]+)",
+            r"I\s+left\s+([A-Za-z0-9\s]+?)\s+(?:and|to)\s+(?:joined?|(?:now\s+)?work\s+at)\s+([A-Za-z0-9\s]+)",
             raw,
             re.IGNORECASE,
         )
@@ -281,7 +281,13 @@ class DeterministicMemoryExtractor(BaseMemoryExtractor):
                 re.IGNORECASE,
             )
             if match_en_neg:
-                item = match_en_neg.group(1).strip()
+                raw_item = match_en_neg.group(1).strip()
+                item = re.sub(
+                    r"\b(in the (morning|evening|afternoon|night)|anymore|right now|daily|now)\b",
+                    "",
+                    raw_item,
+                    flags=re.IGNORECASE,
+                ).strip()
                 facts.append(
                     ExtractedFact(
                         subject="user",
@@ -312,7 +318,13 @@ class DeterministicMemoryExtractor(BaseMemoryExtractor):
             # Positive: "I like biryani" / "I love Italian food" / "My favorite beverage is tea"
             match_en_pos = re.search(r"I\s+(?:love|like|enjoy)\s+([a-zA-Z0-9\s]+)", clause, re.IGNORECASE)
             if match_en_pos:
-                item = match_en_pos.group(1).strip()
+                raw_item = match_en_pos.group(1).strip()
+                item = re.sub(
+                    r"\b(in the (morning|evening|afternoon|night)|anymore|right now|daily|now)\b",
+                    "",
+                    raw_item,
+                    flags=re.IGNORECASE,
+                ).strip()
                 facts.append(
                     ExtractedFact(
                         subject="user",
@@ -407,7 +419,11 @@ class DeterministicMemoryExtractor(BaseMemoryExtractor):
                 re.IGNORECASE,
             )
             if match_en_moved:
-                city = match_en_moved.group(1).strip().capitalize()
+                city = (
+                    re.sub(r"\b(now|currently|recently|today)\b", "", match_en_moved.group(1), flags=re.IGNORECASE)
+                    .strip()
+                    .capitalize()
+                )
                 facts.append(
                     ExtractedFact(
                         subject="user",
@@ -430,7 +446,11 @@ class DeterministicMemoryExtractor(BaseMemoryExtractor):
                 re.IGNORECASE,
             )
             if match_en_live:
-                city = match_en_live.group(1).strip().capitalize()
+                city = (
+                    re.sub(r"\b(now|currently|recently|today)\b", "", match_en_live.group(1), flags=re.IGNORECASE)
+                    .strip()
+                    .capitalize()
+                )
                 facts.append(
                     ExtractedFact(
                         subject="user",
@@ -453,7 +473,11 @@ class DeterministicMemoryExtractor(BaseMemoryExtractor):
                 re.IGNORECASE,
             )
             if match_en_lived:
-                city = match_en_lived.group(1).strip().capitalize()
+                city = (
+                    re.sub(r"\b(now|currently|recently|today)\b", "", match_en_lived.group(1), flags=re.IGNORECASE)
+                    .strip()
+                    .capitalize()
+                )
                 facts.append(
                     ExtractedFact(
                         subject="user",
@@ -565,7 +589,7 @@ class DeterministicMemoryExtractor(BaseMemoryExtractor):
 
             # Future plans: "I will travel to Japan" / "I plan to visit Paris"
             match_plan = re.search(
-                r"I\s+(?:will\s+travel\s+to|plan\s+to\s+visit)\s+([a-zA-Z\s]+)",
+                r"I\s+(?:will\s+travel\s+to|plan\s+to\s+visit|will\s+move\s+to)\s+([a-zA-Z\s]+?)(?:\s+next\s+year|\s+soon|$)",
                 clause,
                 re.IGNORECASE,
             )

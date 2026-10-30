@@ -1,5 +1,7 @@
 from datetime import UTC, datetime
 
+import pytest
+
 from app.models.memory import Memory
 from app.retrieval.fusion import FusionCandidate, reciprocal_rank_fusion
 from app.retrieval.reranker import reranker
@@ -159,3 +161,52 @@ def test_precision_and_recall_at_5_hand_calculated():
     macro_r = (r1 + r2 + r3) / 3.0
     assert round(macro_p, 4) == 0.3667
     assert round(macro_r, 4) == 0.5833
+
+
+@pytest.mark.asyncio
+async def test_conversational_follow_up_query_rewriting():
+    from app.cache.redis_service import cache_service
+    from app.retrieval.coordinator import retrieval_coordinator
+
+    uid = "test_user_rw"
+    cid = "test_char_rw"
+    conv_id = "test_conv_rw"
+
+    # Context with location discussion
+    msgs_loc = [
+        {"role": "user", "content": "I live in Pune right now."},
+        {"role": "assistant", "content": "Got it, you live in Pune."},
+    ]
+    await cache_service.set_context(uid, cid, conv_id, msgs_loc)
+
+    rewritten, was_rewritten = await retrieval_coordinator._resolve_follow_up_query(
+        "What about before?", uid, cid, conv_id
+    )
+    assert was_rewritten is True
+    assert rewritten == "Where did I live before?"
+
+    # Hinglish follow-up: "aur pehle?"
+    rewritten_hg, was_hg = await retrieval_coordinator._resolve_follow_up_query("aur pehle?", uid, cid, conv_id)
+    assert was_hg is True
+    assert rewritten_hg == "Where did I live before?"
+
+    # Context with career discussion
+    msgs_work = [
+        {"role": "user", "content": "I work at Microsoft."},
+        {"role": "assistant", "content": "Noted, you are employed at Microsoft."},
+    ]
+    conv_work = "test_conv_work"
+    await cache_service.set_context(uid, cid, conv_work, msgs_work)
+
+    rewritten_work, was_work = await retrieval_coordinator._resolve_follow_up_query(
+        "and where before that?", uid, cid, conv_work
+    )
+    assert was_work is True
+    assert rewritten_work == "Where did I work before?"
+
+    # Non-follow-up query remains unchanged
+    normal_q, normal_rewritten = await retrieval_coordinator._resolve_follow_up_query(
+        "What is my sister's college?", uid, cid, conv_id
+    )
+    assert normal_rewritten is False
+    assert normal_q == "What is my sister's college?"

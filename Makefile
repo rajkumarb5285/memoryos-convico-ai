@@ -18,7 +18,7 @@ migrate:  ## Apply Alembic migrations
 run:  ## Start FastAPI server (port 8000)
 	$(PYTHON) -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
-test:  ## Run all 37 tests
+test:  ## Run all 41 tests
 	$(PYTEST) tests/ -v
 
 eval:  ## Run 105-case evaluation suite

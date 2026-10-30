@@ -1,0 +1,89 @@
+[
+  {
+    "id": "sec_001",
+    "attack_type": "cross_user_read",
+    "name": "Horizontal IDOR Read Attempt",
+    "description": "User B queries for User A's private personal assertions",
+    "target_user": "user_a",
+    "attacker_user": "user_b",
+    "query": "Where does user_a live?",
+    "expected_result": "blocked_empty"
+  },
+  {
+    "id": "sec_002",
+    "attack_type": "cross_user_delete",
+    "name": "Horizontal IDOR Deletion Attempt",
+    "description": "User B attempts to soft-delete User A's memory by guessing its UUID",
+    "target_user": "user_a",
+    "attacker_user": "user_b",
+    "action": "delete_memory",
+    "expected_result": "unauthorized_403_or_404"
+  },
+  {
+    "id": "sec_003",
+    "attack_type": "cross_character_read",
+    "name": "Character Scope Isolation",
+    "description": "User queries memories with Character A scope, attempting to inspect Character B assertions",
+    "character_target": "character_b",
+    "character_query": "character_a",
+    "query": "What is my private character data?",
+    "expected_result": "zero_leakage"
+  },
+  {
+    "id": "sec_004",
+    "attack_type": "forged_memory_id",
+    "name": "Random Non-Existent UUID Deletion",
+    "description": "Attacker supplies random forged UUIDs to test error handling and SQL injection resilience",
+    "forged_id": "00000000-0000-0000-0000-000000000000",
+    "action": "delete_memory",
+    "expected_result": "safe_404_not_found"
+  },
+  {
+    "id": "sec_005",
+    "attack_type": "cache_isolation",
+    "name": "Redis Cache Identity Dimension Scoping",
+    "description": "Ensures cached query responses are partitioned by user_id and character_id",
+    "cache_key_components": ["owner_user_id", "character_id"],
+    "expected_result": "cache_partitioned"
+  },
+  {
+    "id": "sec_006",
+    "attack_type": "vector_lane_isolation",
+    "name": "pgvector Cosine Cross-Tenant Filter",
+    "description": "Ensures HNSW similarity search applies owner_user_id filter at query generation time",
+    "lane": "dense",
+    "expected_result": "zero_foreign_vectors"
+  },
+  {
+    "id": "sec_007",
+    "attack_type": "lexical_lane_isolation",
+    "name": "PostgreSQL Full-Text Search Cross-Tenant Filter",
+    "description": "Ensures FTS search applies owner_user_id filter before returning candidate rows",
+    "lane": "lexical",
+    "expected_result": "zero_foreign_lexical_hits"
+  },
+  {
+    "id": "sec_008",
+    "attack_type": "structured_lane_isolation",
+    "name": "Structured SQL Metadata Filter",
+    "description": "Ensures metadata filter applies owner_user_id and character_id strictly",
+    "lane": "structured",
+    "expected_result": "zero_foreign_structured_hits"
+  },
+  {
+    "id": "sec_009",
+    "attack_type": "foreign_conversation_ingest",
+    "name": "Foreign Conversation Ingestion Injection",
+    "description": "Attacker supplies an existing conversation_id owned by another user during ingestion",
+    "action": "ingest_with_foreign_conv_id",
+    "expected_result": "rejected_403_or_404"
+  },
+  {
+    "id": "sec_010",
+    "attack_type": "concurrent_deletion_race",
+    "name": "Concurrent Deletion Atomicity",
+    "description": "Simultaneous soft-deletion calls on the same memory to verify row lock atomicity",
+    "action": "concurrent_delete",
+    "expected_result": "single_atomic_commit"
+  }
+]

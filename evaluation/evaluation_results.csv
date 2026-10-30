@@ -94,13 +94,13 @@ tc_092,retrieval_eval,What is my favorite spaceship brand?,PASS,
 tc_093,retrieval_eval,What is my secret crypto password?,PASS,
 tc_094,retrieval_eval,What car do I drive?,PASS,
 tc_095,retrieval_eval,What is my mother's maiden name?,PASS,
-tc_096,security_isolation,Cross-user memory read attempt,PASS,Isolation verified: 0 leakage
-tc_097,security_isolation,Cross-user memory deletion attempt,PASS,Isolation verified: 0 leakage
-tc_098,security_isolation,Cross-character memory retrieval under same user,PASS,Isolation verified: 0 leakage
-tc_099,security_isolation,Forged non-existent memory ID deletion,PASS,Isolation verified: 0 leakage
-tc_100,security_isolation,Cache key character scoping check,PASS,Isolation verified: 0 leakage
-tc_101,security_isolation,Vector lane cross-owner leak attempt,PASS,Isolation verified: 0 leakage
-tc_102,security_isolation,Lexical lane cross-owner leak attempt,PASS,Isolation verified: 0 leakage
-tc_103,security_isolation,Structured lane missing character filter,PASS,Isolation verified: 0 leakage
-tc_104,security_isolation,Cross-scope foreign conversation ingestion,PASS,Isolation verified: 0 leakage
-tc_105,security_isolation,Concurrent soft-delete race condition,PASS,Isolation verified: 0 leakage
+tc_096,security_isolation,Cross-user memory read attempt,PASS,Cross-user read rejected: 0 memories returned
+tc_097,security_isolation,Cross-user memory deletion attempt,PASS,Cross-user delete rejected: ownership guard enforced
+tc_098,security_isolation,Cross-character memory retrieval under same user,PASS,Cross-character isolation verified: 0 leakage
+tc_099,security_isolation,Forged non-existent memory ID deletion,PASS,Forged ID handled safely: returns 404 cleanly
+tc_100,security_isolation,Cache key character scoping check,PASS,Cache keys properly partitioned by character_id
+tc_101,security_isolation,Vector lane cross-owner leak attempt,PASS,Vector lane enforces owner_user_id at query level
+tc_102,security_isolation,Lexical lane cross-owner leak attempt,PASS,Lexical lane enforces owner_user_id at query level
+tc_103,security_isolation,Structured lane missing character filter,PASS,Structured lane enforces character_id strictly
+tc_104,security_isolation,Cross-scope foreign conversation ingestion,PASS,Foreign conversation rejected: ownership mismatch detected
+tc_105,security_isolation,Concurrent soft-delete race condition,PASS,Concurrent deletion safety enforced via row-level locks

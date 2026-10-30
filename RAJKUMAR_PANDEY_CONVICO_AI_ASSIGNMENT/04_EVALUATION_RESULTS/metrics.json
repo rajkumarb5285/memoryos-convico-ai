@@ -1,5 +1,5 @@
 {
-  "evaluation_timestamp": "2026-10-30T16:36:44.056774+00:00",
+  "evaluation_timestamp": "2026-10-30T17:00:15.473109+00:00",
   "total_test_cases": 105,
   "passed_test_cases": 105,
   "pass_rate_percentage": 100.0,
@@ -15,19 +15,26 @@
     "queries_evaluated": 16,
     "precision_at_5": 0.2,
     "recall_at_5": 1.0,
+    "insufficient_evidence_queries_evaluated": 4,
     "insufficient_evidence_accuracy": 1.0,
-    "average_latency_ms": 61.63,
-    "p95_latency_ms": 179.54
+    "average_latency_ms": 165.2,
+    "p95_latency_ms": 247.13
   },
   "security_metrics": {
     "isolation_tests_evaluated": 10,
+    "cross_user_probes": 4,
     "cross_user_leakage_rate": 0.0,
+    "cross_character_probes": 2,
     "cross_character_leakage_rate": 0.0,
-    "idor_vulnerability_count": 0
+    "idor_vulnerabilities_found": 0,
+    "unauthorized_attempts_blocked_rate": 1.0
   },
   "lifecycle_metrics": {
+    "lifecycle_cases_evaluated": 10,
     "contradiction_resolution_accuracy": 1.0,
     "duplicate_handling_correctness": 1.0,
-    "historical_facts_preserved_count": 2
+    "temporal_validity_correctness": 1.0,
+    "tombstone_correctness": 1.0,
+    "historical_facts_preserved_count": 92
   }
 }

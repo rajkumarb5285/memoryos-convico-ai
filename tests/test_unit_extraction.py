@@ -1,3 +1,5 @@
+import json
+
 import pytest
 
 from app.extraction.extractor import DeterministicMemoryExtractor
@@ -167,3 +169,152 @@ async def test_location_sequence_extraction():
     assert r3.facts[0].predicate == "lives_in"
     assert r3.facts[0].temporal_status == "current"
     assert r3.facts[0].object == "Mumbai"
+
+
+@pytest.mark.asyncio
+async def test_groq_extractor_fallback_when_no_api_key():
+    from app.extraction.llm_extractor import GroqMemoryExtractor
+
+    groq = GroqMemoryExtractor(api_key=None)
+    # Empty message
+    r_empty = await groq.extract("   ")
+    assert r_empty.is_assertion is False
+    assert len(r_empty.facts) == 0
+
+    # Fallback to deterministic
+    res = await groq.extract("I live in Bengaluru.")
+    assert res.is_assertion is True
+    assert len(res.facts) >= 1
+    assert res.facts[0].object == "Bengaluru"
+
+
+@pytest.mark.asyncio
+async def test_groq_extractor_mocked_success(monkeypatch):
+    import httpx
+
+    from app.extraction.llm_extractor import GroqMemoryExtractor
+
+    fake_response_data = {
+        "choices": [
+            {
+                "message": {
+                    "content": json.dumps(
+                        {
+                            "is_assertion": True,
+                            "confidence": 0.98,
+                            "facts": [
+                                {
+                                    "subject": "user",
+                                    "predicate": "employed_at",
+                                    "object": "NVIDIA",
+                                    "polarity": "positive",
+                                    "temporal_status": "current",
+                                    "domain": "career",
+                                    "confidence": 0.98,
+                                }
+                            ],
+                        }
+                    )
+                }
+            }
+        ]
+    }
+
+    class MockResponse:
+        status_code = 200
+
+        def json(self):
+            return fake_response_data
+
+    class MockAsyncClient:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *args):
+            pass
+
+        async def post(self, *args, **kwargs):
+            return MockResponse()
+
+    monkeypatch.setattr(httpx, "AsyncClient", MockAsyncClient)
+
+    groq = GroqMemoryExtractor(api_key="gsk_test_key_mock")
+    res = await groq.extract("I am an AI architect at NVIDIA.")
+    assert res.is_assertion is True
+    assert len(res.facts) == 1
+    assert res.facts[0].predicate == "employed_at"
+    assert res.facts[0].object == "NVIDIA"
+
+
+@pytest.mark.asyncio
+async def test_groq_extractor_mocked_markdown_and_error_fallback(monkeypatch):
+    import httpx
+
+    from app.extraction.llm_extractor import GroqMemoryExtractor
+
+    # 1. Test markdown ```json block parsing
+    markdown_content = """Here is your extraction:
+```json
+{
+  "is_assertion": true,
+  "confidence": 0.95,
+  "facts": [
+    {
+      "subject": "user",
+      "predicate": "likes",
+      "object": "green tea",
+      "polarity": "positive",
+      "temporal_status": "current",
+      "domain": "food",
+      "confidence": 0.95
+    }
+  ]
+}
+```"""
+
+    class MockMarkdownResponse:
+        status_code = 200
+
+        def json(self):
+            return {"choices": [{"message": {"content": markdown_content}}]}
+
+    class MockErrorResponse:
+        status_code = 500
+
+        def json(self):
+            return {"error": "Internal rate limit"}
+
+    class MockClientMarkdown:
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *args):
+            pass
+
+        async def post(self, *args, **kwargs):
+            return MockMarkdownResponse()
+
+    monkeypatch.setattr(httpx, "AsyncClient", lambda *a, **kw: MockClientMarkdown())
+    groq = GroqMemoryExtractor(api_key="gsk_test_key_mock")
+    r1 = await groq.extract("I drink green tea every day.")
+    assert r1.is_assertion is True
+    assert r1.facts[0].object == "green tea"
+
+    # 2. Test 500 error falling back to deterministic extractor
+    class MockClientError:
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *args):
+            pass
+
+        async def post(self, *args, **kwargs):
+            return MockErrorResponse()
+
+    monkeypatch.setattr(httpx, "AsyncClient", lambda *a, **kw: MockClientError())
+    r2 = await groq.extract("Main Indore mein rehta hoon.")
+    assert r2.is_assertion is True
+    assert any("Indore" in f.object for f in r2.facts)

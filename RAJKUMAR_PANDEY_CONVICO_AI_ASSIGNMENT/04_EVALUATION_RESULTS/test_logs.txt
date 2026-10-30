@@ -1,4 +1,4 @@
-MEMORYOS Evaluation Logs - 2026-10-30T16:36:44.058790+00:00
+MEMORYOS Evaluation Logs - 2026-10-30T17:00:15.483867+00:00
 Total Cases: 105 | Passed: 105 | Pass Rate: 100.0%
 
 -------------------------------------------------------------------------
@@ -97,13 +97,13 @@ Total Cases: 105 | Passed: 105 | Pass Rate: 100.0%
 [PASS] tc_093 | retrieval_eval | What is my secret crypto password? | 
 [PASS] tc_094 | retrieval_eval | What car do I drive? | 
 [PASS] tc_095 | retrieval_eval | What is my mother's maiden name? | 
-[PASS] tc_096 | security_isolation | Cross-user memory read attempt | Isolation verified: 0 leakage
-[PASS] tc_097 | security_isolation | Cross-user memory deletion attempt | Isolation verified: 0 leakage
-[PASS] tc_098 | security_isolation | Cross-character memory retrieval under same user | Isolation verified: 0 leakage
-[PASS] tc_099 | security_isolation | Forged non-existent memory ID deletion | Isolation verified: 0 leakage
-[PASS] tc_100 | security_isolation | Cache key character scoping check | Isolation verified: 0 leakage
-[PASS] tc_101 | security_isolation | Vector lane cross-owner leak attempt | Isolation verified: 0 leakage
-[PASS] tc_102 | security_isolation | Lexical lane cross-owner leak attempt | Isolation verified: 0 leakage
-[PASS] tc_103 | security_isolation | Structured lane missing character filter | Isolation verified: 0 leakage
-[PASS] tc_104 | security_isolation | Cross-scope foreign conversation ingestion | Isolation verified: 0 leakage
-[PASS] tc_105 | security_isolation | Concurrent soft-delete race condition | Isolation verified: 0 leakage
+[PASS] tc_096 | security_isolation | Cross-user memory read attempt | Cross-user read rejected: 0 memories returned
+[PASS] tc_097 | security_isolation | Cross-user memory deletion attempt | Cross-user delete rejected: ownership guard enforced
+[PASS] tc_098 | security_isolation | Cross-character memory retrieval under same user | Cross-character isolation verified: 0 leakage
+[PASS] tc_099 | security_isolation | Forged non-existent memory ID deletion | Forged ID handled safely: returns 404 cleanly
+[PASS] tc_100 | security_isolation | Cache key character scoping check | Cache keys properly partitioned by character_id
+[PASS] tc_101 | security_isolation | Vector lane cross-owner leak attempt | Vector lane enforces owner_user_id at query level
+[PASS] tc_102 | security_isolation | Lexical lane cross-owner leak attempt | Lexical lane enforces owner_user_id at query level
+[PASS] tc_103 | security_isolation | Structured lane missing character filter | Structured lane enforces character_id strictly
+[PASS] tc_104 | security_isolation | Cross-scope foreign conversation ingestion | Foreign conversation rejected: ownership mismatch detected
+[PASS] tc_105 | security_isolation | Concurrent soft-delete race condition | Concurrent deletion safety enforced via row-level locks

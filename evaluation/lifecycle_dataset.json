@@ -1,0 +1,93 @@
+[
+  {
+    "id": "lc_001",
+    "name": "Location Supersession",
+    "category": "contradiction_resolution",
+    "sequence": [
+      {"utterance": "Main Indore mein rehta hoon.", "expected_current": {"predicate": "lives_in", "object": "Indore"}},
+      {"utterance": "Ab main Pune shift ho gaya hoon.", "expected_current": {"predicate": "lives_in", "object": "Pune"}, "expected_historical": [{"predicate": "lives_in", "object": "Indore"}]}
+    ]
+  },
+  {
+    "id": "lc_002",
+    "name": "Employment Transition",
+    "category": "contradiction_resolution",
+    "sequence": [
+      {"utterance": "I work at Google as a senior engineer.", "expected_current": {"predicate": "employed_at", "object": "Google"}},
+      {"utterance": "I left Google and now work at Microsoft.", "expected_current": {"predicate": "employed_at", "object": "Microsoft"}, "expected_historical": [{"predicate": "employed_at", "object": "Google"}]}
+    ]
+  },
+  {
+    "id": "lc_003",
+    "name": "Preference Polarity Conflict",
+    "category": "preference_update",
+    "sequence": [
+      {"utterance": "I like coffee in the morning.", "expected_current": {"predicate": "likes", "object": "coffee", "polarity": "positive"}},
+      {"utterance": "I do not like coffee anymore.", "expected_current": {"predicate": "dislikes", "object": "coffee", "polarity": "negative"}}
+    ]
+  },
+  {
+    "id": "lc_004",
+    "name": "Preference Reversion",
+    "category": "preference_reversion",
+    "sequence": [
+      {"utterance": "Mujhe chai pasand nahi hai.", "expected_current": {"predicate": "dislikes", "object": "chai", "polarity": "negative"}},
+      {"utterance": "Actually, mujhe chai bahut pasand hai.", "expected_current": {"predicate": "likes", "object": "chai", "polarity": "positive"}}
+    ]
+  },
+  {
+    "id": "lc_005",
+    "name": "Exact Duplicate Ingestion",
+    "category": "duplicate_handling",
+    "sequence": [
+      {"utterance": "I live in Bengaluru.", "expected_action": "created"},
+      {"utterance": "I live in Bengaluru.", "expected_action": "idempotent_no_duplicate"}
+    ]
+  },
+  {
+    "id": "lc_006",
+    "name": "Whitespace and Casing Variation Duplicate",
+    "category": "duplicate_handling",
+    "sequence": [
+      {"utterance": "I work at Apple.", "expected_action": "created"},
+      {"utterance": "   I   work at    APPLE.   ", "expected_action": "idempotent_no_duplicate"}
+    ]
+  },
+  {
+    "id": "lc_007",
+    "name": "Non-Contradictory Coexistence",
+    "category": "multi_fact_coexistence",
+    "sequence": [
+      {"utterance": "I like reading sci-fi novels.", "expected_current_count": 1},
+      {"utterance": "I like classical music.", "expected_current_count": 2}
+    ]
+  },
+  {
+    "id": "lc_008",
+    "name": "Multi-Hop Geographic Relocation",
+    "category": "temporal_reversion",
+    "sequence": [
+      {"utterance": "I lived in Mumbai.", "step": 1},
+      {"utterance": "I now live in Pune.", "step": 2},
+      {"utterance": "I moved back to Mumbai.", "step": 3, "expected_current": "Mumbai", "expected_historical": ["Pune", "Mumbai"]}
+    ]
+  },
+  {
+    "id": "lc_009",
+    "name": "Future Temporal Plan Non-Supersession",
+    "category": "future_temporal_status",
+    "sequence": [
+      {"utterance": "I live in Delhi currently.", "expected_current": "Delhi"},
+      {"utterance": "I will move to Tokyo next year.", "expected_current": "Delhi", "expected_future": "Tokyo"}
+    ]
+  },
+  {
+    "id": "lc_010",
+    "name": "Soft Deletion Tombstone Invariant",
+    "category": "soft_deletion_tombstone",
+    "sequence": [
+      {"utterance": "My name is Shadow.", "expected_action": "created"},
+      {"action": "soft_delete", "expected_deleted_flag": true, "expected_excluded_from_retrieval": true}
+    ]
+  }
+]
