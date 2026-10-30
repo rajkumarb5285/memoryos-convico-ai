@@ -1,4 +1,4 @@
-name: MEMORYOS CI Quality Gates
+name: "MEMORYOS CI Quality Gates"
 
 on:
   push:
@@ -36,36 +36,36 @@ jobs:
           --health-retries 5
 
     steps:
-      - name: Checkout Code
+      - name: "Checkout Code"
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
+      - name: "Set up Python 3.11"
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install uv
+      - name: "Install uv"
         uses: astral-sh/setup-uv@v3
         with:
           version: "latest"
 
-      - name: Install Dependencies
+      - name: "Install Dependencies"
         run: |
           uv venv
           uv pip install fastapi uvicorn pydantic pydantic-settings sqlalchemy asyncpg pgvector alembic redis httpx pyjwt cryptography pytest pytest-asyncio pytest-cov ruff mypy bandit reportlab matplotlib pillow email-validator fastembed
 
-      - name: Gate 1: Code Formatting & Linting (Ruff)
+      - name: "Gate 1: Code Formatting & Linting (Ruff)"
         run: |
           source .venv/bin/activate
           ruff check app/ tests/
           ruff format --check app/ tests/
 
-      - name: Gate 2: Security Vulnerability Scan (Bandit)
+      - name: "Gate 2: Security Vulnerability Scan (Bandit)"
         run: |
           source .venv/bin/activate
           bandit -r app/ -ll
 
-      - name: Gate 3: Database Migrations (Alembic)
+      - name: "Gate 3: Database Migrations (Alembic)"
         env:
           POSTGRES_SERVER: localhost
           POSTGRES_PORT: 5438
@@ -77,7 +77,7 @@ jobs:
           source .venv/bin/activate
           alembic upgrade head
 
-      - name: Gate 4: Test Suite (Unit, Integration, Security IDOR, Resilience)
+      - name: "Gate 4: Test Suite (Unit, Integration, Security IDOR, Resilience)"
         env:
           PYTHONPATH: .
           POSTGRES_SERVER: localhost
@@ -90,7 +90,7 @@ jobs:
           source .venv/bin/activate
           pytest tests/ --cov=app --cov-report=term-missing
 
-      - name: Gate 5: Reproducible 105-case Evaluation Suite
+      - name: "Gate 5: Reproducible 105-case Evaluation Suite"
         env:
           PYTHONPATH: .
           POSTGRES_SERVER: localhost
@@ -102,4 +102,3 @@ jobs:
         run: |
           source .venv/bin/activate
           python evaluation/run_evaluation.py
-
