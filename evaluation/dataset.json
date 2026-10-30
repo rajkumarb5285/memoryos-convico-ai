@@ -1,0 +1,1450 @@
+[
+  {
+    "id": "tc_001",
+    "type": "extraction",
+    "category": "english_fact",
+    "input": "I live in San Francisco.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "lives_in",
+        "object": "San Francisco",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_002",
+    "type": "extraction",
+    "category": "english_fact",
+    "input": "I live in New York City.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "lives_in",
+        "object": "New York City",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_003",
+    "type": "extraction",
+    "category": "english_fact",
+    "input": "I live in London.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "lives_in",
+        "object": "London",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_004",
+    "type": "extraction",
+    "category": "english_fact",
+    "input": "I live in Tokyo.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "lives_in",
+        "object": "Tokyo",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_005",
+    "type": "extraction",
+    "category": "english_fact",
+    "input": "I live in Berlin.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "lives_in",
+        "object": "Berlin",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_006",
+    "type": "extraction",
+    "category": "english_fact",
+    "input": "I live in Toronto.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "lives_in",
+        "object": "Toronto",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_007",
+    "type": "extraction",
+    "category": "english_fact",
+    "input": "I live in Sydney.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "lives_in",
+        "object": "Sydney",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_008",
+    "type": "extraction",
+    "category": "english_fact",
+    "input": "I work at Google.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "employed_at",
+        "object": "Google",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_009",
+    "type": "extraction",
+    "category": "english_fact",
+    "input": "I work at Apple.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "employed_at",
+        "object": "Apple",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_010",
+    "type": "extraction",
+    "category": "english_fact",
+    "input": "I work at Amazon.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "employed_at",
+        "object": "Amazon",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_011",
+    "type": "extraction",
+    "category": "english_fact",
+    "input": "I work at Meta.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "employed_at",
+        "object": "Meta",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_012",
+    "type": "extraction",
+    "category": "english_fact",
+    "input": "I work at Netflix.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "employed_at",
+        "object": "Netflix",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_013",
+    "type": "extraction",
+    "category": "english_fact",
+    "input": "My name is Sarah.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "name_is",
+        "object": "Sarah",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_014",
+    "type": "extraction",
+    "category": "english_fact",
+    "input": "My name is Alex.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "name_is",
+        "object": "Alex",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_015",
+    "type": "extraction",
+    "category": "english_fact",
+    "input": "I am a software engineer.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "occupation_is",
+        "object": "software engineer",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_016",
+    "type": "extraction",
+    "category": "hinglish_fact",
+    "input": "Main Indore mein rehta hoon.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "lives_in",
+        "object": "Indore",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_017",
+    "type": "extraction",
+    "category": "hinglish_fact",
+    "input": "Main Bhopal mein rehta hoon.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "lives_in",
+        "object": "Bhopal",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_018",
+    "type": "extraction",
+    "category": "hinglish_fact",
+    "input": "Main Delhi mein rehta hoon.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "lives_in",
+        "object": "Delhi",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_019",
+    "type": "extraction",
+    "category": "hinglish_fact",
+    "input": "Main Mumbai mein rehta hoon.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "lives_in",
+        "object": "Mumbai",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_020",
+    "type": "extraction",
+    "category": "hinglish_fact",
+    "input": "Main Bangalore mein rehta hoon.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "lives_in",
+        "object": "Bangalore",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_021",
+    "type": "extraction",
+    "category": "hinglish_fact",
+    "input": "Main Hyderabad mein rehta hoon.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "lives_in",
+        "object": "Hyderabad",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_022",
+    "type": "extraction",
+    "category": "hinglish_fact",
+    "input": "Mujhe chai bahut achi lagti hai.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "likes",
+        "object": "chai",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_023",
+    "type": "extraction",
+    "category": "hinglish_fact",
+    "input": "Mujhe pizza pasand hai.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "likes",
+        "object": "pizza",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_024",
+    "type": "extraction",
+    "category": "hinglish_fact",
+    "input": "Mujhe biryani pasand hai.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "likes",
+        "object": "biryani",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_025",
+    "type": "extraction",
+    "category": "hinglish_fact",
+    "input": "Mujhe music bahut achha lagta hai.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "likes",
+        "object": "music",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_026",
+    "type": "extraction",
+    "category": "hinglish_fact",
+    "input": "Meri behen Stanford mein padhti hai.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "sister",
+        "predicate": "studies_at",
+        "object": "Stanford",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_027",
+    "type": "extraction",
+    "category": "hinglish_fact",
+    "input": "Meri behen Harvard mein padhti hai.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "sister",
+        "predicate": "studies_at",
+        "object": "Harvard",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_028",
+    "type": "extraction",
+    "category": "hinglish_fact",
+    "input": "Mera naam Rahul hai.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "name_is",
+        "object": "Rahul",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_029",
+    "type": "extraction",
+    "category": "hinglish_fact",
+    "input": "Mera naam Rohan hai.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "name_is",
+        "object": "Rohan",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_030",
+    "type": "extraction",
+    "category": "hinglish_fact",
+    "input": "Mera naam Priya hai.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "name_is",
+        "object": "Priya",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_031",
+    "type": "extraction",
+    "category": "negation",
+    "input": "Mujhe coffee pasand nahi hai.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "dislikes",
+        "object": "coffee",
+        "temporal_status": "current",
+        "polarity": "negative"
+      }
+    ]
+  },
+  {
+    "id": "tc_032",
+    "type": "extraction",
+    "category": "negation",
+    "input": "Mujhe cricket bilkul pasand nahi.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "dislikes",
+        "object": "cricket",
+        "temporal_status": "current",
+        "polarity": "negative"
+      }
+    ]
+  },
+  {
+    "id": "tc_033",
+    "type": "extraction",
+    "category": "negation",
+    "input": "Mujhe sushi pasand nahi hai.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "dislikes",
+        "object": "sushi",
+        "temporal_status": "current",
+        "polarity": "negative"
+      }
+    ]
+  },
+  {
+    "id": "tc_034",
+    "type": "extraction",
+    "category": "negation",
+    "input": "Mujhe spicy food pasand nahi hai.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "dislikes",
+        "object": "spicy food",
+        "temporal_status": "current",
+        "polarity": "negative"
+      }
+    ]
+  },
+  {
+    "id": "tc_035",
+    "type": "extraction",
+    "category": "negation",
+    "input": "I don't like coffee.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "dislikes",
+        "object": "coffee",
+        "temporal_status": "current",
+        "polarity": "negative"
+      }
+    ]
+  },
+  {
+    "id": "tc_036",
+    "type": "extraction",
+    "category": "negation",
+    "input": "I dislike tea.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "dislikes",
+        "object": "tea",
+        "temporal_status": "current",
+        "polarity": "negative"
+      }
+    ]
+  },
+  {
+    "id": "tc_037",
+    "type": "extraction",
+    "category": "negation",
+    "input": "I hate sushi.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "dislikes",
+        "object": "sushi",
+        "temporal_status": "current",
+        "polarity": "negative"
+      }
+    ]
+  },
+  {
+    "id": "tc_038",
+    "type": "extraction",
+    "category": "negation",
+    "input": "I don't like horror movies.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "dislikes",
+        "object": "horror movies",
+        "temporal_status": "current",
+        "polarity": "negative"
+      }
+    ]
+  },
+  {
+    "id": "tc_039",
+    "type": "extraction",
+    "category": "negation",
+    "input": "I dislike crowded places.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "dislikes",
+        "object": "crowded places",
+        "temporal_status": "current",
+        "polarity": "negative"
+      }
+    ]
+  },
+  {
+    "id": "tc_040",
+    "type": "extraction",
+    "category": "negation",
+    "input": "Mujhe driving pasand nahi hai.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "dislikes",
+        "object": "driving",
+        "temporal_status": "current",
+        "polarity": "negative"
+      }
+    ]
+  },
+  {
+    "id": "tc_041",
+    "type": "extraction",
+    "category": "negation",
+    "input": "I don't like waking up early.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "dislikes",
+        "object": "waking up early",
+        "temporal_status": "current",
+        "polarity": "negative"
+      }
+    ]
+  },
+  {
+    "id": "tc_042",
+    "type": "extraction",
+    "category": "negation",
+    "input": "Mujhe cold weather bilkul pasand nahi.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "dislikes",
+        "object": "cold weather",
+        "temporal_status": "current",
+        "polarity": "negative"
+      }
+    ]
+  },
+  {
+    "id": "tc_043",
+    "type": "extraction",
+    "category": "multi_fact",
+    "input": "Mujhe coffee pasand nahi hai, but chai bahut achi lagti hai.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "dislikes",
+        "object": "coffee",
+        "temporal_status": "current",
+        "polarity": "negative"
+      },
+      {
+        "subject": "user",
+        "predicate": "likes",
+        "object": "chai",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_044",
+    "type": "extraction",
+    "category": "multi_fact",
+    "input": "I worked at Google before joining Microsoft.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "worked_at",
+        "object": "Google",
+        "temporal_status": "historical",
+        "polarity": "positive"
+      },
+      {
+        "subject": "user",
+        "predicate": "employed_at",
+        "object": "Microsoft",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_045",
+    "type": "extraction",
+    "category": "multi_fact",
+    "input": "I left Google and joined Microsoft.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "worked_at",
+        "object": "Google",
+        "temporal_status": "historical",
+        "polarity": "positive"
+      },
+      {
+        "subject": "user",
+        "predicate": "employed_at",
+        "object": "Microsoft",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_046",
+    "type": "extraction",
+    "category": "multi_fact",
+    "input": "I worked at Uber before joining Stripe.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "worked_at",
+        "object": "Uber",
+        "temporal_status": "historical",
+        "polarity": "positive"
+      },
+      {
+        "subject": "user",
+        "predicate": "employed_at",
+        "object": "Stripe",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_047",
+    "type": "extraction",
+    "category": "multi_fact",
+    "input": "I left Oracle and joined Amazon.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "worked_at",
+        "object": "Oracle",
+        "temporal_status": "historical",
+        "polarity": "positive"
+      },
+      {
+        "subject": "user",
+        "predicate": "employed_at",
+        "object": "Amazon",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_048",
+    "type": "extraction",
+    "category": "multi_fact",
+    "input": "My name is Amit and I live in Bangalore.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "name_is",
+        "object": "Amit",
+        "temporal_status": "current",
+        "polarity": "positive"
+      },
+      {
+        "subject": "user",
+        "predicate": "lives_in",
+        "object": "Bangalore",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_049",
+    "type": "extraction",
+    "category": "multi_fact",
+    "input": "My name is Sneha and I am a designer.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "name_is",
+        "object": "Sneha",
+        "temporal_status": "current",
+        "polarity": "positive"
+      },
+      {
+        "subject": "user",
+        "predicate": "occupation_is",
+        "object": "designer",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_050",
+    "type": "extraction",
+    "category": "multi_fact",
+    "input": "I love biryani but I dislike sweets.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "likes",
+        "object": "biryani",
+        "temporal_status": "current",
+        "polarity": "positive"
+      },
+      {
+        "subject": "user",
+        "predicate": "dislikes",
+        "object": "sweets",
+        "temporal_status": "current",
+        "polarity": "negative"
+      }
+    ]
+  },
+  {
+    "id": "tc_051",
+    "type": "extraction",
+    "category": "multi_fact",
+    "input": "Main Indore mein rehta tha, ab Pune shift ho gaya.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "lived_in",
+        "object": "Indore",
+        "temporal_status": "historical",
+        "polarity": "positive"
+      },
+      {
+        "subject": "user",
+        "predicate": "lives_in",
+        "object": "Pune",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_052",
+    "type": "extraction",
+    "category": "multi_fact",
+    "input": "Main Delhi mein rehta tha, ab Gurgaon shift ho gaya.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "lived_in",
+        "object": "Delhi",
+        "temporal_status": "historical",
+        "polarity": "positive"
+      },
+      {
+        "subject": "user",
+        "predicate": "lives_in",
+        "object": "Gurgaon",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_053",
+    "type": "extraction",
+    "category": "question_or_noise_filter",
+    "input": "Do you know someone at Google?",
+    "expected_is_assertion": false,
+    "expected_facts": []
+  },
+  {
+    "id": "tc_054",
+    "type": "extraction",
+    "category": "question_or_noise_filter",
+    "input": "Do you know someone at Microsoft?",
+    "expected_is_assertion": false,
+    "expected_facts": []
+  },
+  {
+    "id": "tc_055",
+    "type": "extraction",
+    "category": "question_or_noise_filter",
+    "input": "Can you tell me how to make chai?",
+    "expected_is_assertion": false,
+    "expected_facts": []
+  },
+  {
+    "id": "tc_056",
+    "type": "extraction",
+    "category": "question_or_noise_filter",
+    "input": "Where is the nearest coffee shop?",
+    "expected_is_assertion": false,
+    "expected_facts": []
+  },
+  {
+    "id": "tc_057",
+    "type": "extraction",
+    "category": "question_or_noise_filter",
+    "input": "What is the weather in Indore today?",
+    "expected_is_assertion": false,
+    "expected_facts": []
+  },
+  {
+    "id": "tc_058",
+    "type": "extraction",
+    "category": "question_or_noise_filter",
+    "input": "Who is the CEO of Apple?",
+    "expected_is_assertion": false,
+    "expected_facts": []
+  },
+  {
+    "id": "tc_059",
+    "type": "extraction",
+    "category": "question_or_noise_filter",
+    "input": "Kya aap mujhe Python sikha sakte ho?",
+    "expected_is_assertion": false,
+    "expected_facts": []
+  },
+  {
+    "id": "tc_060",
+    "type": "extraction",
+    "category": "question_or_noise_filter",
+    "input": "Kya kisi ko biryani ki recipe pata hai?",
+    "expected_is_assertion": false,
+    "expected_facts": []
+  },
+  {
+    "id": "tc_061",
+    "type": "extraction",
+    "category": "question_or_noise_filter",
+    "input": "Hello! How are you doing today?",
+    "expected_is_assertion": false,
+    "expected_facts": []
+  },
+  {
+    "id": "tc_062",
+    "type": "extraction",
+    "category": "question_or_noise_filter",
+    "input": "Good morning, Antigravity!",
+    "expected_is_assertion": false,
+    "expected_facts": []
+  },
+  {
+    "id": "tc_063",
+    "type": "extraction",
+    "category": "question_or_noise_filter",
+    "input": "Hey there!",
+    "expected_is_assertion": false,
+    "expected_facts": []
+  },
+  {
+    "id": "tc_064",
+    "type": "extraction",
+    "category": "question_or_noise_filter",
+    "input": "Namaste, kya haal chaal?",
+    "expected_is_assertion": false,
+    "expected_facts": []
+  },
+  {
+    "id": "tc_065",
+    "type": "extraction",
+    "category": "question_or_noise_filter",
+    "input": "Could you recommend a good book?",
+    "expected_is_assertion": false,
+    "expected_facts": []
+  },
+  {
+    "id": "tc_066",
+    "type": "extraction",
+    "category": "question_or_noise_filter",
+    "input": "Would you like to chat about AI?",
+    "expected_is_assertion": false,
+    "expected_facts": []
+  },
+  {
+    "id": "tc_067",
+    "type": "extraction",
+    "category": "question_or_noise_filter",
+    "input": "Why is the sky blue?",
+    "expected_is_assertion": false,
+    "expected_facts": []
+  },
+  {
+    "id": "tc_068",
+    "type": "extraction",
+    "category": "temporal_transition",
+    "input": "I used to live in Indore.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "lived_in",
+        "object": "Indore",
+        "temporal_status": "historical",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_069",
+    "type": "extraction",
+    "category": "temporal_transition",
+    "input": "I used to live in Boston.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "lived_in",
+        "object": "Boston",
+        "temporal_status": "historical",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_070",
+    "type": "extraction",
+    "category": "temporal_transition",
+    "input": "I used to live in Chicago.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "lived_in",
+        "object": "Chicago",
+        "temporal_status": "historical",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_071",
+    "type": "extraction",
+    "category": "temporal_transition",
+    "input": "I recently moved to Pune.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "lives_in",
+        "object": "Pune",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_072",
+    "type": "extraction",
+    "category": "temporal_transition",
+    "input": "I recently moved to Seattle.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "lives_in",
+        "object": "Seattle",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_073",
+    "type": "extraction",
+    "category": "temporal_transition",
+    "input": "I recently moved to Austin.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "lives_in",
+        "object": "Austin",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_074",
+    "type": "extraction",
+    "category": "temporal_transition",
+    "input": "I will travel to Japan next year.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "plans_to_visit",
+        "object": "Japan",
+        "temporal_status": "future",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_075",
+    "type": "extraction",
+    "category": "temporal_transition",
+    "input": "I will travel to France in summer.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "plans_to_visit",
+        "object": "France",
+        "temporal_status": "future",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_076",
+    "type": "extraction",
+    "category": "temporal_transition",
+    "input": "I plan to visit Switzerland.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "plans_to_visit",
+        "object": "Switzerland",
+        "temporal_status": "future",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_077",
+    "type": "extraction",
+    "category": "temporal_transition",
+    "input": "I am now a vegetarian.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "diet",
+        "object": "Vegetarian",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_078",
+    "type": "extraction",
+    "category": "temporal_transition",
+    "input": "I am now a vegan.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "diet",
+        "object": "Vegan",
+        "temporal_status": "current",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_079",
+    "type": "extraction",
+    "category": "temporal_transition",
+    "input": "Main pehle Indore mein rehta tha.",
+    "expected_is_assertion": true,
+    "expected_facts": [
+      {
+        "subject": "user",
+        "predicate": "lived_in",
+        "object": "Indore",
+        "temporal_status": "historical",
+        "polarity": "positive"
+      }
+    ]
+  },
+  {
+    "id": "tc_080",
+    "type": "retrieval",
+    "category": "retrieval_eval",
+    "input": "Where do I live now?",
+    "expected_object": "Pune",
+    "expected_temporal_status": "current",
+    "expected_insufficient": false
+  },
+  {
+    "id": "tc_081",
+    "type": "retrieval",
+    "category": "retrieval_eval",
+    "input": "Where did I live before?",
+    "expected_object": "Indore",
+    "expected_temporal_status": "historical",
+    "expected_insufficient": false
+  },
+  {
+    "id": "tc_082",
+    "type": "retrieval",
+    "category": "retrieval_eval",
+    "input": "Which city did I live in previously?",
+    "expected_object": "Indore",
+    "expected_temporal_status": "historical",
+    "expected_insufficient": false
+  },
+  {
+    "id": "tc_083",
+    "type": "retrieval",
+    "category": "retrieval_eval",
+    "input": "Where is my current home?",
+    "expected_object": "Pune",
+    "expected_temporal_status": "current",
+    "expected_insufficient": false
+  },
+  {
+    "id": "tc_084",
+    "type": "retrieval",
+    "category": "retrieval_eval",
+    "input": "What company do I work for now?",
+    "expected_object": "Microsoft",
+    "expected_temporal_status": "current",
+    "expected_insufficient": false
+  },
+  {
+    "id": "tc_085",
+    "type": "retrieval",
+    "category": "retrieval_eval",
+    "input": "Where did I work before Microsoft?",
+    "expected_object": "Google",
+    "expected_temporal_status": "historical",
+    "expected_insufficient": false
+  },
+  {
+    "id": "tc_086",
+    "type": "retrieval",
+    "category": "retrieval_eval",
+    "input": "What beverage do I like?",
+    "expected_object": "chai",
+    "expected_temporal_status": "current",
+    "expected_insufficient": false
+  },
+  {
+    "id": "tc_087",
+    "type": "retrieval",
+    "category": "retrieval_eval",
+    "input": "What do I think about coffee?",
+    "expected_object": "coffee",
+    "expected_temporal_status": "current",
+    "expected_insufficient": false
+  },
+  {
+    "id": "tc_088",
+    "type": "retrieval",
+    "category": "retrieval_eval",
+    "input": "Where does my sister study?",
+    "expected_object": "Stanford",
+    "expected_temporal_status": "current",
+    "expected_insufficient": false
+  },
+  {
+    "id": "tc_089",
+    "type": "retrieval",
+    "category": "retrieval_eval",
+    "input": "Where do I plan to travel?",
+    "expected_object": "Japan",
+    "expected_temporal_status": "future",
+    "expected_insufficient": false
+  },
+  {
+    "id": "tc_090",
+    "type": "retrieval",
+    "category": "retrieval_eval",
+    "input": "What is my diet?",
+    "expected_object": "Vegetarian",
+    "expected_temporal_status": "current",
+    "expected_insufficient": false
+  },
+  {
+    "id": "tc_091",
+    "type": "retrieval",
+    "category": "retrieval_eval",
+    "input": "Where does my behen study?",
+    "expected_object": "Stanford",
+    "expected_temporal_status": "current",
+    "expected_insufficient": false
+  },
+  {
+    "id": "tc_092",
+    "type": "retrieval",
+    "category": "retrieval_eval",
+    "input": "What is my favorite spaceship brand?",
+    "expected_object": null,
+    "expected_temporal_status": null,
+    "expected_insufficient": true
+  },
+  {
+    "id": "tc_093",
+    "type": "retrieval",
+    "category": "retrieval_eval",
+    "input": "What is my secret crypto password?",
+    "expected_object": null,
+    "expected_temporal_status": null,
+    "expected_insufficient": true
+  },
+  {
+    "id": "tc_094",
+    "type": "retrieval",
+    "category": "retrieval_eval",
+    "input": "What car do I drive?",
+    "expected_object": null,
+    "expected_temporal_status": null,
+    "expected_insufficient": true
+  },
+  {
+    "id": "tc_095",
+    "type": "retrieval",
+    "category": "retrieval_eval",
+    "input": "What is my mother's maiden name?",
+    "expected_object": null,
+    "expected_temporal_status": null,
+    "expected_insufficient": true
+  },
+  {
+    "id": "tc_096",
+    "type": "security",
+    "category": "security_isolation",
+    "input": "Cross-user memory read attempt",
+    "attack_type": "cross_user_read",
+    "expected_status": 403,
+    "expected_leakage": false
+  },
+  {
+    "id": "tc_097",
+    "type": "security",
+    "category": "security_isolation",
+    "input": "Cross-user memory deletion attempt",
+    "attack_type": "cross_user_delete",
+    "expected_status": 404,
+    "expected_leakage": false
+  },
+  {
+    "id": "tc_098",
+    "type": "security",
+    "category": "security_isolation",
+    "input": "Cross-character memory retrieval under same user",
+    "attack_type": "cross_character_retrieve",
+    "expected_status": 200,
+    "expected_leakage": false
+  },
+  {
+    "id": "tc_099",
+    "type": "security",
+    "category": "security_isolation",
+    "input": "Forged non-existent memory ID deletion",
+    "attack_type": "forged_memory_id",
+    "expected_status": 404,
+    "expected_leakage": false
+  },
+  {
+    "id": "tc_100",
+    "type": "security",
+    "category": "security_isolation",
+    "input": "Cache key character scoping check",
+    "attack_type": "cache_character_scoping",
+    "expected_status": 200,
+    "expected_leakage": false
+  },
+  {
+    "id": "tc_101",
+    "type": "security",
+    "category": "security_isolation",
+    "input": "Vector lane cross-owner leak attempt",
+    "attack_type": "vector_lane_isolation",
+    "expected_status": 200,
+    "expected_leakage": false
+  },
+  {
+    "id": "tc_102",
+    "type": "security",
+    "category": "security_isolation",
+    "input": "Lexical lane cross-owner leak attempt",
+    "attack_type": "lexical_lane_isolation",
+    "expected_status": 200,
+    "expected_leakage": false
+  },
+  {
+    "id": "tc_103",
+    "type": "security",
+    "category": "security_isolation",
+    "input": "Structured lane missing character filter",
+    "attack_type": "structured_lane_isolation",
+    "expected_status": 200,
+    "expected_leakage": false
+  },
+  {
+    "id": "tc_104",
+    "type": "security",
+    "category": "security_isolation",
+    "input": "Cross-scope foreign conversation ingestion",
+    "attack_type": "cross_conversation_ingest",
+    "expected_status": 404,
+    "expected_leakage": false
+  },
+  {
+    "id": "tc_105",
+    "type": "security",
+    "category": "security_isolation",
+    "input": "Concurrent soft-delete race condition",
+    "attack_type": "concurrent_deletion",
+    "expected_status": 200,
+    "expected_leakage": false
+  }
+]

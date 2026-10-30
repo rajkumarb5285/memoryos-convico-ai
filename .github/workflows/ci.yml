@@ -1,0 +1,105 @@
+name: MEMORYOS CI Quality Gates
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  quality-and-tests:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgrespassword
+          POSTGRES_DB: memoryos
+        ports:
+          - 5438:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6385:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+
+      - name: Install Dependencies
+        run: |
+          uv venv
+          uv pip install fastapi uvicorn pydantic pydantic-settings sqlalchemy asyncpg pgvector alembic redis httpx pyjwt cryptography pytest pytest-asyncio pytest-cov ruff mypy bandit reportlab matplotlib pillow email-validator fastembed
+
+      - name: Gate 1: Code Formatting & Linting (Ruff)
+        run: |
+          source .venv/bin/activate
+          ruff check app/ tests/
+          ruff format --check app/ tests/
+
+      - name: Gate 2: Security Vulnerability Scan (Bandit)
+        run: |
+          source .venv/bin/activate
+          bandit -r app/ -ll
+
+      - name: Gate 3: Database Migrations (Alembic)
+        env:
+          POSTGRES_SERVER: localhost
+          POSTGRES_PORT: 5438
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgrespassword
+          POSTGRES_DB: memoryos
+          REDIS_URL: redis://localhost:6385
+        run: |
+          source .venv/bin/activate
+          alembic upgrade head
+
+      - name: Gate 4: Test Suite (Unit, Integration, Security IDOR, Resilience)
+        env:
+          PYTHONPATH: .
+          POSTGRES_SERVER: localhost
+          POSTGRES_PORT: 5438
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgrespassword
+          POSTGRES_DB: memoryos
+          REDIS_URL: redis://localhost:6385
+        run: |
+          source .venv/bin/activate
+          pytest tests/ --cov=app --cov-report=term-missing
+
+      - name: Gate 5: Reproducible 105-case Evaluation Suite
+        env:
+          PYTHONPATH: .
+          POSTGRES_SERVER: localhost
+          POSTGRES_PORT: 5438
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgrespassword
+          POSTGRES_DB: memoryos
+          REDIS_URL: redis://localhost:6385
+        run: |
+          source .venv/bin/activate
+          python evaluation/run_evaluation.py
+
